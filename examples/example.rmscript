@@ -1,0 +1,9 @@
+DESCRIPTION Wave hello to the user
+play test_sound
+look left
+antenna both up
+wait 1s
+look right
+antenna both down
+wait 0.5s
+look center
