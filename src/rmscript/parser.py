@@ -85,17 +85,18 @@ class Parser:
 
         self.skip_newlines()
 
-        # Parse optional DESCRIPTION header
-        if self.current().type == TokenType.KEYWORD_DESCRIPTION:
-            self.advance()  # Skip DESCRIPTION keyword
+        # Parse required description string (must be first line)
+        if self.current().type != TokenType.STRING:
+            raise self.error("Expected description string as first line (e.g., \"This is the description\")")
 
-            # Read the rest of the line as the description
-            description_parts = []
-            while self.current().type not in (TokenType.NEWLINE, TokenType.EOF):
-                description_parts.append(self.current().value)
-                self.advance()
-            program.description = " ".join(description_parts)
-            self.skip_newlines()
+        program.description = self.current().value
+        self.advance()
+
+        # Ensure newline after description
+        if self.current().type != TokenType.NEWLINE and self.current().type != TokenType.EOF:
+            raise self.error("Expected newline after description string")
+
+        self.skip_newlines()
 
         # Note: tool_name will be set from filename by the compiler
         program.tool_name = ""

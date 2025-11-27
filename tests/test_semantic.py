@@ -17,7 +17,7 @@ class TestSemanticAnalyzer:
 
     def test_apply_default_angle(self):
         """Test that default angle is applied when no strength specified."""
-        source = """DESCRIPTION test
+        source = """"test"
 turn left"""
         lexer = Lexer(source)
         tokens = lexer.tokenize()
@@ -33,7 +33,7 @@ turn left"""
 
     def test_apply_default_duration(self):
         """Test that default duration is applied when not specified."""
-        source = """DESCRIPTION test
+        source = """"test"
 look up"""
         lexer = Lexer(source)
         tokens = lexer.tokenize()
@@ -47,7 +47,7 @@ look up"""
 
     def test_qualitative_strength_context_aware(self):
         """Test that qualitative keywords map to context-appropriate values."""
-        source = """DESCRIPTION test
+        source = """"test"
 turn left maximum
 look left maximum"""
         lexer = Lexer(source)
@@ -68,7 +68,7 @@ look left maximum"""
 
     def test_head_translation_backward(self):
         """Test that backward direction moves head in negative X."""
-        source = """DESCRIPTION test
+        source = """"test"
 head backward 10"""
         lexer = Lexer(source)
         tokens = lexer.tokenize()
@@ -85,7 +85,7 @@ head backward 10"""
 
     def test_antenna_both_modifier(self):
         """Test that 'antenna both' sets both antennas."""
-        source = """DESCRIPTION test
+        source = """"test"
 antenna both up"""
         lexer = Lexer(source)
         tokens = lexer.tokenize()
@@ -103,7 +103,7 @@ antenna both up"""
 
     def test_repeat_block_expansion(self):
         """Test that repeat blocks expand actions correctly."""
-        source = """DESCRIPTION test
+        source = """"test"
 repeat 3
     look left"""
         lexer = Lexer(source)
@@ -121,7 +121,7 @@ repeat 3
 
     def test_wait_action_generation(self):
         """Test that wait statements generate IRWaitAction in IR."""
-        source = """DESCRIPTION test
+        source = """"test"
 wait 2s"""
         lexer = Lexer(source)
         tokens = lexer.tokenize()
@@ -137,7 +137,7 @@ wait 2s"""
 
     def test_coordinate_system_consistency(self):
         """Test that coordinate system is consistent across movements."""
-        source = """DESCRIPTION test
+        source = """"test"
 head forward 10
 head backward 10"""
         lexer = Lexer(source)
@@ -155,7 +155,7 @@ head backward 10"""
 
     def test_action_merging(self):
         """Test that multiple actions in chain are merged."""
-        source = """DESCRIPTION test
+        source = """"test"
 turn left and look right"""
         lexer = Lexer(source)
         tokens = lexer.tokenize()
@@ -174,7 +174,7 @@ turn left and look right"""
 
     def test_warning_for_out_of_range(self):
         """Test that out-of-range values generate warnings."""
-        source = """DESCRIPTION test
+        source = """"test"
 turn left 200"""
         lexer = Lexer(source)
         tokens = lexer.tokenize()
@@ -193,7 +193,7 @@ turn left 200"""
         """Test that semantic errors are collected."""
         # Note: negative repeat counts are now caught at parse time.
         # Test semantic error with an out-of-range value that only generates a warning.
-        source = """DESCRIPTION test
+        source = """"test"
 turn left 200"""
         lexer = Lexer(source)
         tokens = lexer.tokenize()
@@ -208,7 +208,7 @@ turn left 200"""
 
     def test_source_line_tracking_in_ir(self):
         """Test that IR actions track source line numbers."""
-        source = """DESCRIPTION test
+        source = """"test"
 look left
 wait 1s"""
         lexer = Lexer(source)
@@ -225,7 +225,7 @@ wait 1s"""
 
     def test_original_text_tracking(self):
         """Test that original text is tracked in IR."""
-        source = """DESCRIPTION test
+        source = """"test"
 look left 45"""
         lexer = Lexer(source)
         tokens = lexer.tokenize()

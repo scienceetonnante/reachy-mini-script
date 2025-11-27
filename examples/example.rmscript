@@ -1,9 +1,46 @@
-DESCRIPTION Wave hello to the user
-play test_sound
-look left
+# This is an example file
+# The first line (other than comments and empty lines) has to be a description between quotes
+"Wave hello to the user and play a sound"
+
+# Set initial positions
+turn straight
+look straight
 antenna both up
+
+# Use qualitative, quantitative or default arguments for motions
+look left maximum fast
+look right 20 2s
+look left 30
+look right 3s
+look neutral fast
 wait 1s
-look right
-antenna both down
+
+# Head translational dof
+head up maximum fast
+head down maximum fast
+head center
+head left maximum fast
+head right maximum fast
+head neutral
+
+# Antenna dance using repeats
+repeat 2
+    antenna left up fast
+    antenna right up fast
+    antenna left down fast
+    antenna right down fast
+wait 1s
+
+
+play test_sound
+wait 1s
+
+look right big slow and antenna both down veryfast
 wait 0.5s
+
+repeat 3
+    tilt left maximum
+    tilt right maximum
+tilt center
+
 look center

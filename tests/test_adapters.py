@@ -99,7 +99,7 @@ class TestAdapterProtocol:
                 return counts
 
         # Compile a script
-        source = """DESCRIPTION test
+        source = """"test"
 look left
 wait 1s
 picture"""
@@ -128,7 +128,7 @@ picture"""
                     "has_file_path": context.source_file_path is not None,
                 }
 
-        source = """DESCRIPTION Test behavior
+        source = """"Test behavior"
 look left"""
         result = compile_script(source)
 
@@ -162,7 +162,7 @@ look left"""
                     return {"success": False, "errors": [str(e)]}
 
         # Valid IR
-        source = """DESCRIPTION test
+        source = """"test"
 look left"""
         result = compile_script(source)
 
@@ -188,7 +188,7 @@ look left"""
                     "config": context.config,
                 }
 
-        source = """DESCRIPTION test
+        source = """"test"
 look left
 look right
 look up"""

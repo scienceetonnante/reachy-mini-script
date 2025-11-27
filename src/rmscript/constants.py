@@ -45,18 +45,6 @@ TRANSLATION_MEDIUM = 10  # mm
 TRANSLATION_LARGE = 20  # mm
 TRANSLATION_VERY_LARGE = 28  # mm (just under ±30mm limit)
 
-# Legacy constants (deprecated - use context-aware versions above)
-VERY_SMALL_ANGLE = HEAD_YAW_VERY_SMALL
-VERY_SMALL_DISTANCE = TRANSLATION_VERY_SMALL
-SMALL_ANGLE = HEAD_YAW_SMALL
-SMALL_DISTANCE = TRANSLATION_SMALL
-MEDIUM_ANGLE = HEAD_YAW_MEDIUM
-MEDIUM_DISTANCE = TRANSLATION_MEDIUM
-LARGE_ANGLE = HEAD_YAW_LARGE
-LARGE_DISTANCE = TRANSLATION_LARGE
-VERY_LARGE_ANGLE = HEAD_YAW_VERY_LARGE
-VERY_LARGE_DISTANCE = TRANSLATION_VERY_LARGE
-
 # Duration Mappings
 DEFAULT_DURATION = 1.0  # seconds
 
@@ -74,19 +62,20 @@ DURATION_KEYWORDS: Dict[str, float] = {
 SMALL_KEYWORDS: List[str] = ["little", "slightly", "small", "alittle"]
 MEDIUM_KEYWORDS: List[str] = ["medium", "normal", "regular", "standard", "normally"]
 LARGE_KEYWORDS: List[str] = ["lot", "big", "large", "very", "alot", "huge", "strong", "strongly"]
-VERY_SMALL_KEYWORDS: List[str] = ["minuscule", "mini", "verysmall", "tiny"]
-VERY_LARGE_KEYWORDS: List[str] = ["verybig", "enormous","verylarge","maximum"]
+VERY_SMALL_KEYWORDS: List[str] = ["minuscule", "mini", "verysmall", "tiny", "minimum"]
+VERY_LARGE_KEYWORDS: List[str] = ["verybig", "enormous","verylarge","maximum", "maxi", "max"]
 
 # Direction Synonyms
-CENTER_SYNONYMS: List[str] = ["center", "straight", "forward", "neutral"]
-INWARD_SYNONYMS: List[str] = ["in", "inside", "inward"]
-OUTWARD_SYNONYMS: List[str] = ["out", "outside", "outward"]
+CENTER_SYNONYMS: List[str] = ["center", "straight", "neutral", "centre", "middle", "zero"]
+INWARD_SYNONYMS: List[str] = ["in", "inside", "inward", "int", "interior", "internal"]
+OUTWARD_SYNONYMS: List[str] = ["out", "outside", "outward", "ext", "exterior", "external"]
+FORWARD_SYNONYMS: List[str] = ["forward"]
 BACKWARD_SYNONYMS: List[str] = ["back", "backward", "backwards"]
 
 # All valid directions (used by lexer for tokenization)
 ALL_DIRECTIONS: List[str] = [
     "left", "right", "up", "down", "both"
-] + CENTER_SYNONYMS + INWARD_SYNONYMS + OUTWARD_SYNONYMS + BACKWARD_SYNONYMS
+] + CENTER_SYNONYMS + INWARD_SYNONYMS + OUTWARD_SYNONYMS + FORWARD_SYNONYMS + BACKWARD_SYNONYMS
 
 # Physical Limits (from robot constraints)
 MAX_BODY_YAW_DEG = 160.0  # degrees
@@ -115,7 +104,12 @@ SOUND_BLOCKING_KEYWORDS: List[str] = ["pause", "fully", "wait", "block", "comple
 # Valid Directions per Keyword
 TURN_DIRECTIONS: List[str] = ["left", "right"] + CENTER_SYNONYMS
 LOOK_DIRECTIONS: List[str] = ["left", "right", "up", "down"] + CENTER_SYNONYMS
-HEAD_DIRECTIONS: List[str] = ["forward", "left", "right", "up", "down"] + BACKWARD_SYNONYMS
+HEAD_DIRECTIONS: List[str] = (
+    ["forward", "left", "right", "up", "down"]
+    + BACKWARD_SYNONYMS
+    + FORWARD_SYNONYMS
+    + CENTER_SYNONYMS
+)
 TILT_DIRECTIONS: List[str] = ["left", "right"] + CENTER_SYNONYMS
 
 # Antenna movements (OLD SYSTEM - kept for backward compatibility if needed)

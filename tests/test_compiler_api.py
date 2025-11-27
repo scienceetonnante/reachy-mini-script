@@ -11,7 +11,7 @@ class TestCompileScript:
 
     def test_compile_script_basic(self):
         """Test basic script compilation."""
-        source = """DESCRIPTION test
+        source = """"test"
 look left"""
         result = compile_script(source)
 
@@ -21,7 +21,7 @@ look left"""
 
     def test_compile_script_returns_compilation_result(self):
         """Test that compile_script() returns CompilationResult with all fields."""
-        source = """DESCRIPTION test
+        source = """"test"
 look left"""
         result = compile_script(source)
 
@@ -35,7 +35,7 @@ look left"""
 
     def test_compile_script_preserves_source(self):
         """Test that source code is preserved in result."""
-        source = """DESCRIPTION test
+        source = """"test"
 look left
 wait 1s"""
         result = compile_script(source)
@@ -44,7 +44,7 @@ wait 1s"""
 
     def test_compile_script_with_errors(self):
         """Test compile_script with invalid syntax."""
-        source = """DESCRIPTION test
+        source = """"test"
 jump up"""
         result = compile_script(source)
 
@@ -53,7 +53,7 @@ jump up"""
 
     def test_compile_script_with_warnings(self):
         """Test compile_script with warnings."""
-        source = """DESCRIPTION test
+        source = """"test"
 turn left 200"""
         result = compile_script(source)
 
@@ -67,7 +67,7 @@ class TestCompileFile:
     def test_compile_file_success(self, tmp_path):
         """Test compiling valid rmscript file."""
         script_file = tmp_path / "test.rmscript"
-        script_file.write_text("DESCRIPTION test\nlook left")
+        script_file.write_text('"test"\nlook left')
 
         result = compile_file(str(script_file))
 
@@ -87,7 +87,7 @@ class TestCompileFile:
     def test_compile_file_with_spaces_in_name(self, tmp_path):
         """Test filename with spaces becomes underscore tool name."""
         script_file = tmp_path / "wave hello.rmscript"
-        script_file.write_text("DESCRIPTION test\nlook left")
+        script_file.write_text('"test"\nlook left')
 
         result = compile_file(str(script_file))
 
@@ -97,7 +97,7 @@ class TestCompileFile:
     def test_compile_file_preserves_path(self, tmp_path):
         """Test that file path is preserved in result."""
         script_file = tmp_path / "mytest.rmscript"
-        script_file.write_text("DESCRIPTION test\nlook left")
+        script_file.write_text('"test"\nlook left')
 
         result = compile_file(str(script_file))
 
@@ -107,14 +107,14 @@ class TestCompileFile:
 
     def test_compile_file_with_complex_script(self, tmp_path):
         """Test compiling complex script from file."""
-        script_content = """DESCRIPTION Complex behavior
+        script_content = '''"Complex behavior"
 repeat 2
     look left
     wait 0.5s
     look right
     wait 0.5s
 antenna both up
-picture"""
+picture'''
         script_file = tmp_path / "complex.rmscript"
         script_file.write_text(script_content)
 
@@ -127,7 +127,7 @@ picture"""
     def test_compile_file_with_errors(self, tmp_path):
         """Test compile_file with syntax errors."""
         script_file = tmp_path / "bad.rmscript"
-        script_file.write_text("DESCRIPTION test\njump up")
+        script_file.write_text('"test"\njump up')
 
         result = compile_file(str(script_file))
 
@@ -136,7 +136,7 @@ picture"""
 
     def test_compile_file_preserves_source(self, tmp_path):
         """Test that file contents are preserved in source_code."""
-        content = "DESCRIPTION test\nlook left\nwait 1s"
+        content = '"test"\nlook left\nwait 1s'
         script_file = tmp_path / "test.rmscript"
         script_file.write_text(content)
 
@@ -148,7 +148,7 @@ picture"""
     def test_compile_file_special_characters_in_name(self, tmp_path):
         """Test filename with special characters."""
         script_file = tmp_path / "test-behavior_v2.rmscript"
-        script_file.write_text("DESCRIPTION test\nlook left")
+        script_file.write_text('"test"\nlook left')
 
         result = compile_file(str(script_file))
 
@@ -162,14 +162,14 @@ class TestVerifyScript:
 
     def test_verify_valid_script(self):
         """Test verify_script returns True for valid script."""
-        is_valid, messages = verify_script("DESCRIPTION test\nlook left")
+        is_valid, messages = verify_script('"test"\nlook left')
 
         assert is_valid
         assert len(messages) == 0
 
     def test_verify_invalid_script(self):
         """Test verify_script returns False and messages for invalid script."""
-        is_valid, messages = verify_script("DESCRIPTION test\njump up")
+        is_valid, messages = verify_script('"test"\njump up')
 
         assert not is_valid
         assert len(messages) > 0
@@ -177,7 +177,7 @@ class TestVerifyScript:
 
     def test_verify_includes_warnings(self):
         """Test verify_script includes warnings in messages."""
-        is_valid, messages = verify_script("DESCRIPTION test\nturn left 200")
+        is_valid, messages = verify_script('"test"\nturn left 200')
 
         assert is_valid  # Still valid despite warning
         assert len(messages) > 0  # Has warnings
@@ -185,13 +185,13 @@ class TestVerifyScript:
 
     def test_verify_complex_valid_script(self):
         """Test verify_script with complex valid script."""
-        script = """DESCRIPTION test
+        script = '''"test"
 repeat 3
     look left
     wait 0.5s
     look right
 antenna both up
-picture"""
+picture'''
         is_valid, messages = verify_script(script)
 
         assert is_valid
@@ -199,10 +199,10 @@ picture"""
 
     def test_verify_multiple_errors(self):
         """Test verify_script returns first error (parser stops at first parse error)."""
-        script = """DESCRIPTION test
+        script = '''"test"
 jump up
 fly high
-teleport center"""
+teleport center'''
         is_valid, messages = verify_script(script)
 
         assert not is_valid
@@ -210,30 +210,29 @@ teleport center"""
 
     def test_verify_empty_script(self):
         """Test verify_script with empty script (only description)."""
-        is_valid, messages = verify_script("DESCRIPTION test")
+        is_valid, messages = verify_script('"test"')
 
         assert is_valid
         assert len(messages) == 0
 
     def test_verify_syntax_error(self):
         """Test verify_script with syntax error."""
-        is_valid, messages = verify_script("DESCRIPTION test\nlook left and picture")
+        is_valid, messages = verify_script('"test"\nlook left and picture')
 
         assert not is_valid
         assert any("cannot combine" in msg.lower() for msg in messages)
 
     def test_verify_missing_description(self):
-        """Test verify_script without DESCRIPTION header."""
+        """Test verify_script without description string."""
         is_valid, messages = verify_script("look left\nwait 1s")
 
-        # Should still compile (DESCRIPTION is optional in implementation)
-        # Check actual behavior
+        # Description is now required - should fail
         assert isinstance(is_valid, bool)
         assert isinstance(messages, list)
 
     def test_verify_returns_tuple(self):
         """Test verify_script returns correct tuple structure."""
-        is_valid, messages = verify_script("DESCRIPTION test\nlook left")
+        is_valid, messages = verify_script('"test"\nlook left')
 
         assert isinstance(is_valid, bool)
         assert isinstance(messages, list)
@@ -247,7 +246,7 @@ class TestCompilerAPIIntegration:
 
     def test_compile_file_then_verify(self, tmp_path):
         """Test compiling file then verifying same content."""
-        content = "DESCRIPTION test\nlook left\nwait 1s"
+        content = '"test"\nlook left\nwait 1s'
         script_file = tmp_path / "test.rmscript"
         script_file.write_text(content)
 
@@ -264,10 +263,10 @@ class TestCompilerAPIIntegration:
 
     def test_compile_script_and_file_equivalence(self, tmp_path):
         """Test compile_script and compile_file produce equivalent IR."""
-        content = """DESCRIPTION test
+        content = '''"test"
 look left
 antenna both up
-wait 1s"""
+wait 1s'''
         script_file = tmp_path / "test.rmscript"
         script_file.write_text(content)
 

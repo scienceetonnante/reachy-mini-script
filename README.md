@@ -6,18 +6,14 @@ A kid-friendly robot programming language for Reachy Mini.
 
 rmscript is a simple, Python-like domain-specific language (DSL) designed to make robot programming accessible to children and beginners. 
 It compiles to an intermediate representation (IR) that can be executed by different adapters (queue-based execution, WebSocket streaming, etc.).
+Adapters have to be implemented separately to run the compiled behaviors on physical robots or simulations.
 
 ## Installation
 
 ```bash
-pip install rmscript
+uv sync
 ```
 
-With optional dependencies:
-```bash
-pip install rmscript[reachy]  # For reachy_mini integration
-pip install rmscript[scipy]   # For advanced transformations
-```
 
 ## Quick Start
 
@@ -25,13 +21,13 @@ pip install rmscript[scipy]   # For advanced transformations
 from rmscript import compile_script
 
 # Compile rmscript source
-result = compile_script("""
-DESCRIPTION Wave hello
+result = compile_script('''
+"Wave hello"
 look left
 antenna both up
 wait 1s
 look right
-""")
+''')
 
 if result.success:
     print(f"Compiled {len(result.ir)} actions")
@@ -276,10 +272,10 @@ if not is_valid:
 **Example:**
 
 ```python
-script = """
-DESCRIPTION Test script
+script = '''
+"Test script"
 look left and picture
-"""
+'''
 
 is_valid, errors = verify_script(script)
 # is_valid = False

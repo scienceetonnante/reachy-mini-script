@@ -11,7 +11,7 @@ class TestSoundPlayback:
 
     def test_play_sound_async(self):
         """Test async sound playback."""
-        source = """DESCRIPTION test
+        source = """"test"
 play mysound"""
         result = compile_script(source)
 
@@ -24,7 +24,7 @@ play mysound"""
 
     def test_play_sound_blocking_pause(self):
         """Test blocking sound with 'pause' modifier."""
-        source = """DESCRIPTION test
+        source = """"test"
 play mysound pause"""
         result = compile_script(source)
 
@@ -34,7 +34,7 @@ play mysound pause"""
 
     def test_play_sound_with_duration(self):
         """Test 'play sound 5s' command."""
-        source = """DESCRIPTION test
+        source = """"test"
 play mysound 5s"""
         result = compile_script(source)
 
@@ -48,7 +48,7 @@ play mysound 5s"""
 
     def test_play_sound_in_sequence(self):
         """Test multiple sound commands in sequence."""
-        source = """DESCRIPTION test
+        source = """"test"
 play sound1
 play sound2
 play sound3"""
@@ -60,7 +60,7 @@ play sound3"""
 
     def test_loop_sound_default_duration(self):
         """Test 'loop sound' uses default 10s duration."""
-        source = """DESCRIPTION test
+        source = """"test"
 loop mysound"""
         result = compile_script(source)
 
@@ -74,7 +74,7 @@ loop mysound"""
 
     def test_loop_sound_custom_duration(self):
         """Test 'loop sound 30s' uses custom duration."""
-        source = """DESCRIPTION test
+        source = """"test"
 loop mysound 30s"""
         result = compile_script(source)
 
@@ -89,7 +89,7 @@ class TestPictureCapture:
 
     def test_picture_compiles(self):
         """Test that 'picture' command compiles."""
-        source = """DESCRIPTION test
+        source = """"test"
 picture"""
         result = compile_script(source)
 
@@ -99,7 +99,7 @@ picture"""
 
     def test_picture_in_sequence(self):
         """Test picture in sequence with movements."""
-        source = """DESCRIPTION test
+        source = """"test"
 look left
 picture
 look right"""
@@ -113,7 +113,7 @@ look right"""
 
     def test_multiple_pictures(self):
         """Test multiple picture commands."""
-        source = """DESCRIPTION test
+        source = """"test"
 picture
 wait 1s
 picture"""
@@ -131,7 +131,7 @@ class TestErrorMessages:
 
     def test_error_invalid_keyword_clear_message(self):
         """Test that invalid keywords produce clear errors."""
-        source = """DESCRIPTION test
+        source = """"test"
 jump up"""
         result = compile_script(source)
 
@@ -141,7 +141,7 @@ jump up"""
 
     def test_error_invalid_direction_for_command(self):
         """Test error for invalid direction with specific command."""
-        source = """DESCRIPTION test
+        source = """"test"
 turn up"""
         result = compile_script(source)
 
@@ -154,7 +154,7 @@ turn up"""
 
     def test_error_missing_antenna_parameters(self):
         """Test error when antenna parameters are missing."""
-        source = """DESCRIPTION test
+        source = """"test"
 antenna"""
         result = compile_script(source)
 
@@ -162,7 +162,7 @@ antenna"""
 
     def test_error_malformed_duration(self):
         """Test error for malformed duration."""
-        source = """DESCRIPTION test
+        source = """"test"
 wait abc"""
         result = compile_script(source)
 
@@ -170,7 +170,7 @@ wait abc"""
 
     def test_error_unclosed_repeat_block(self):
         """Test error for missing indentation in repeat block."""
-        source = """DESCRIPTION test
+        source = """"test"
 repeat 3
 look left"""
         result = compile_script(source)
@@ -180,7 +180,7 @@ look left"""
 
     def test_error_missing_sound_name(self):
         """Test error when sound name is missing."""
-        source = """DESCRIPTION test
+        source = """"test"
 play"""
         result = compile_script(source)
 
@@ -192,7 +192,7 @@ play"""
 
     def test_warning_out_of_range_clear_message(self):
         """Test that out-of-range values produce clear warnings."""
-        source = """DESCRIPTION test
+        source = """"test"
 turn left 200"""
         result = compile_script(source)
 
@@ -202,7 +202,7 @@ turn left 200"""
 
     def test_error_and_keyword_with_control_helpful(self):
         """Test helpful error for 'and' with control commands."""
-        source = """DESCRIPTION test
+        source = """"test"
 look left and wait 1s"""
         result = compile_script(source)
 
@@ -214,7 +214,7 @@ look left and wait 1s"""
 
     def test_error_repeat_count_not_number(self):
         """Test error when repeat count is not a number."""
-        source = """DESCRIPTION test
+        source = """"test"
 repeat abc
     look left"""
         result = compile_script(source)
@@ -227,7 +227,7 @@ class TestEdgeCases:
 
     def test_empty_program_after_description(self):
         """Test that program with only description is valid."""
-        source = """DESCRIPTION test"""
+        source = '"test"'
         result = compile_script(source)
 
         # Empty program should compile successfully
@@ -236,7 +236,7 @@ class TestEdgeCases:
 
     def test_comment_only_lines(self):
         """Test that comment-only programs work."""
-        source = """DESCRIPTION test
+        source = """"test"
 # This is a comment
 # Another comment"""
         result = compile_script(source)
@@ -246,7 +246,7 @@ class TestEdgeCases:
 
     def test_blank_lines_ignored(self):
         """Test that blank lines are properly ignored."""
-        source = """DESCRIPTION test
+        source = """"test"
 
 look left
 
@@ -260,7 +260,7 @@ look right
 
     def test_zero_duration_wait(self):
         """Test wait with zero duration."""
-        source = """DESCRIPTION test
+        source = """"test"
 wait 0s"""
         result = compile_script(source)
 
@@ -269,7 +269,7 @@ wait 0s"""
 
     def test_very_large_repeat_count(self):
         """Test repeat with large count."""
-        source = """DESCRIPTION test
+        source = """"test"
 repeat 100
     look left"""
         result = compile_script(source)
@@ -277,22 +277,10 @@ repeat 100
         assert result.success
         assert len(result.ir) == 100
 
-    @pytest.mark.xfail(reason="Multi-line descriptions not yet supported - requires lexer enhancement")
-    def test_multiline_description_preserved(self):
-        """Test multi-line description handling."""
-        source = """DESCRIPTION This is a
-    multi-line description for testing
-look left"""
-        result = compile_script(source)
-
-        assert result.success
-        # Description should include multi-line content
-        assert "multi" in result.description.lower()
-
     def test_mixed_indentation_tabs_spaces(self):
         """Test that mixed indentation is handled."""
         # Note: This may or may not be an error depending on implementation
-        source = """DESCRIPTION test
+        source = """"test"
 repeat 2
     look left
     look right"""
@@ -306,7 +294,7 @@ repeat 2
 
     def test_decimal_repeat_count_error(self):
         """Test that decimal repeat counts produce error."""
-        source = """DESCRIPTION test
+        source = """"test"
 repeat 2.5
     look left"""
         result = compile_script(source)
@@ -315,7 +303,7 @@ repeat 2.5
 
     def test_negative_repeat_count_error(self):
         """Test that negative repeat counts produce error."""
-        source = """DESCRIPTION test
+        source = """"test"
 repeat -1
     look left"""
         result = compile_script(source)
@@ -325,7 +313,7 @@ repeat -1
 
     def test_source_line_preserved_in_errors(self):
         """Test that error messages include line numbers."""
-        source = """DESCRIPTION test
+        source = """"test"
 look left
 jump up
 turn right"""
@@ -335,11 +323,10 @@ turn right"""
         # Error should reference line 3 (jump up)
         assert any(err.line == 3 for err in result.errors)
 
-    @pytest.mark.xfail(reason="Punctuation in descriptions not yet supported - requires lexer enhancement")
     def test_very_long_description(self):
         """Test handling of very long description."""
         long_desc = "This is a very long description. " * 50
-        source = f"""DESCRIPTION {long_desc}
+        source = f""""{long_desc}"
 look left"""
         result = compile_script(source)
 
@@ -348,7 +335,7 @@ look left"""
 
     def test_unicode_in_comments(self):
         """Test Unicode characters in comments."""
-        source = """DESCRIPTION test
+        source = """"test"
 # Comment with émojis 🤖 and ünïcödë
 look left"""
         result = compile_script(source)
@@ -358,7 +345,7 @@ look left"""
 
     def test_unicode_in_sound_names(self):
         """Test Unicode in sound file names."""
-        source = """DESCRIPTION test
+        source = """"test"
 play café_sound"""
         result = compile_script(source)
 

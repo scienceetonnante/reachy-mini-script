@@ -64,7 +64,6 @@ tests/
 - ✅ Antenna with modifiers
 - ✅ Qualitative strength
 - ✅ Duration keywords
-- ✅ Multi-line descriptions
 - ✅ Error handling (invalid directions, missing parameters)
 
 **Semantic Analyzer (13 tests)**
@@ -153,9 +152,9 @@ tests/
 - ✅ Basic repeat blocks
 - ✅ Nested repeat blocks (2 and 3 levels deep)
 - ✅ Repeat execution order
-- ✅ **NEW:** Case insensitivity comprehensive tests
-- ✅ **NEW:** Case-sensitive sound names
-- ✅ **NEW:** Interpolation mode tests
+- ✅ Case insensitivity comprehensive tests
+- ✅ Case-sensitive sound names
+- ✅ Interpolation mode tests
 
 **Media, Errors, Edge Cases (31 tests)**
 - ✅ Sound playback (async, blocking, duration)
@@ -166,10 +165,9 @@ tests/
 - ✅ Edge cases (empty programs, comments, blank lines)
 - ✅ Zero duration waits
 - ✅ Large repeat counts
-- ✅ **NEW:** Multi-line descriptions
-- ✅ **NEW:** Decimal/negative repeat counts (errors)
-- ✅ **NEW:** Source line in errors
-- ✅ **NEW:** Unicode handling
+- ✅ Decimal/negative repeat counts (errors)
+- ✅ Source line in errors
+- ✅ Unicode handling
 
 ## New Tests Added (76 total)
 

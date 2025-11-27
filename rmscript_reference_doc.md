@@ -10,7 +10,7 @@ It compiles to an intermediate representation (IR) that can be executed by diffe
 Create a file `hello.rmscript`:
 
 ```rmscript
-DESCRIPTION Wave hello to someone
+"Wave hello to someone"
 antenna up
 wait 1s
 antenna down
@@ -35,11 +35,16 @@ python examples/run_rmscript.py path/to/hello.rmscript
 Every rmscript file has a simple structure:
 
 ```rmscript
-DESCRIPTION Wave hello to someone
+"Wave hello to someone"
 # Your commands here
 look left
 wait 1s
 ```
+
+**Important:** The description must be:
+- A quoted string (single or double quotes)
+- The first line of the file (excluding comments and blank lines)
+- Present in every script (required)
 
 ### Basic Commands
 
@@ -215,7 +220,7 @@ The picture command captures a frame from the camera and returns it as a base64-
 
 **Single picture (LLM-compatible):**
 ```rmscript
-DESCRIPTION Check behind by taking a picture
+"Check behind by taking a picture"
 turn left maximum
 wait 0.5s
 picture
@@ -237,7 +242,7 @@ This script:
 
 **Multiple pictures:**
 ```rmscript
-DESCRIPTION Look around and take pictures
+"Look around and take pictures"
 look left
 wait 0.5s
 picture
@@ -315,7 +320,7 @@ The loop command automatically repeats the sound until the duration expires. Thi
 
 **Example use case:**
 ```rmscript
-DESCRIPTION Greet with sound and movement
+"Greet with sound and movement"
 play hello pause      # Play greeting sound fully
 wait 0.5s
 antenna both up       # Wave antennas
@@ -470,8 +475,7 @@ play mysound
 ### Example 1: Simple Greeting
 
 ```rmscript
-
-DESCRIPTION Greet someone warmly
+"Greet someone warmly"
 # Wave with antennas
 antenna up
 wait 0.5s
@@ -489,8 +493,7 @@ look center
 ### Example 2: Search Pattern
 
 ```rmscript
-
-DESCRIPTION Look around to search for something
+"Look around to search for something"
 # Scan left to right
 look left 45
 wait 1s
@@ -511,8 +514,7 @@ look center
 ### Example 3: Dance Choreography
 
 ```rmscript
-
-DESCRIPTION Perform a fun dance routine
+"Perform a fun dance routine"
 # Opening pose
 antenna both up and look up 25
 wait 1s
@@ -534,8 +536,7 @@ turn center and look center and antenna down
 ### Example 4: Using Qualitative Strength
 
 ```rmscript
-
-DESCRIPTION Wave shyly at someone
+"Wave shyly at someone"
 # Small movements
 look down slightly
 antenna left up a little
@@ -547,8 +548,7 @@ look center
 ### Example 5: Complex Combination
 
 ```rmscript
-
-DESCRIPTION Show excitement when greeting
+"Show excitement when greeting"
 # Quick movements
 repeat 3
     antenna both up superfast

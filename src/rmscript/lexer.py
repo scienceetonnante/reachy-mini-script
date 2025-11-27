@@ -48,6 +48,9 @@ class TokenType(Enum):
     # Punctuation (for descriptions)
     PUNCTUATION = auto()  # . , - : ; ! ? ( )
 
+    # String literals
+    STRING = auto()  # "quoted string" for descriptions
+
 
 @dataclass
 class Token:
@@ -88,7 +91,6 @@ class Lexer:
             "loop": TokenType.KEYWORD_LOOP,
             "repeat": TokenType.KEYWORD_REPEAT,
             "end": TokenType.KEYWORD_END,
-            "description": TokenType.KEYWORD_DESCRIPTION,
         }
 
         # Directions - import from constants
@@ -191,6 +193,10 @@ class Lexer:
         if ident_lower in self.keywords:
             return Token(self.keywords[ident_lower], ident, self.line, start_col)
 
+        # Check if it's an antenna clock keyword (before directions to handle ext/int)
+        if ident_lower in self.antenna_clock_keywords:
+            return Token(TokenType.ANTENNA_CLOCK, ident_lower, self.line, start_col)
+
         # Check if it's a direction
         if ident_lower in self.directions:
             return Token(TokenType.DIRECTION, ident_lower, self.line, start_col)
@@ -203,10 +209,6 @@ class Lexer:
         if ident_lower in self.qualitative_keywords:
             return Token(TokenType.QUALITATIVE, ident_lower, self.line, start_col)
 
-        # Check if it's an antenna clock keyword
-        if ident_lower in self.antenna_clock_keywords:
-            return Token(TokenType.ANTENNA_CLOCK, ident_lower, self.line, start_col)
-
         # Check if it's a sound blocking keyword
         if ident_lower in self.sound_blocking_keywords:
             return Token(TokenType.SOUND_BLOCKING, ident_lower, self.line, start_col)
@@ -217,6 +219,43 @@ class Lexer:
 
         # Otherwise it's a generic identifier
         return Token(TokenType.IDENTIFIER, ident, self.line, start_col)
+
+    def read_string(self) -> Token:
+        """Read a quoted string (for descriptions)."""
+        start_col = self.column
+        start_line = self.line
+        quote_char = self.advance()  # Consume opening quote
+
+        string_value = ""
+        while (ch := self.peek()) is not None and ch != quote_char:
+            if ch == "\n":
+                raise self.error(f"Unterminated string literal starting at line {start_line}")
+            if ch == "\\":
+                # Handle escape sequences
+                self.advance()
+                next_ch = self.peek()
+                if next_ch == "n":
+                    string_value += "\n"
+                    self.advance()
+                elif next_ch == "t":
+                    string_value += "\t"
+                    self.advance()
+                elif next_ch == "\\" or next_ch == quote_char:
+                    string_value += next_ch
+                    self.advance()
+                else:
+                    string_value += next_ch if next_ch else ""
+                    if next_ch:
+                        self.advance()
+            else:
+                string_value += self.advance()
+
+        if self.peek() != quote_char:
+            raise self.error("Unterminated string literal")
+
+        self.advance()  # Consume closing quote
+
+        return Token(TokenType.STRING, string_value, start_line, start_col)
 
     def handle_indentation(self, indent_level: int) -> List[Token]:
         """Generate INDENT/DEDENT tokens based on indentation level."""
@@ -294,6 +333,11 @@ class Lexer:
                 self.advance()
                 tokens.append(Token(TokenType.NEWLINE, "\\n", self.line - 1, 1))
                 at_line_start = True
+                continue
+
+            # Read quoted strings
+            if (ch := self.peek()) is not None and ch in ('"', "'"):
+                tokens.append(self.read_string())
                 continue
 
             # Read numbers

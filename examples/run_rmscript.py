@@ -1,13 +1,4 @@
-#!/usr/bin/env python3
-"""Execute a rmscript file on the Reachy Mini robot.
-
-Takes an argument that is a RMScript file and runs it.
-It assumes the reachy_mini robot daemon is running and accessible.
-
-Usage:
-    python run_rmscript.py <script.rmscript>
-    python run_rmscript.py example.rmscript
-"""
+"""Execute a rmscript file on the Reachy Mini robot."""
 
 import argparse
 import logging
@@ -31,78 +22,62 @@ def execute_ir_on_robot(ir_actions: list, robot: ReachyMini, script_path: Path) 
     """Execute IR actions directly on the robot."""
     logger.info(f"Executing {len(ir_actions)} actions on robot...")
 
-    # Get script directory for relative sound file paths
+    # Get script directory
     script_dir = script_path.parent
 
     for i, action in enumerate(ir_actions, 1):
         logger.info(f"Action {i}/{len(ir_actions)}: {action}")
 
+        # (1) Movement action
         if isinstance(action, IRAction):
-            # Handle movement action
             head_pose = action.head_pose
             antennas = action.antennas
             body_yaw = action.body_yaw
             duration = action.duration
 
-            # goto_target requires at least one of head, antennas, or body_yaw
-            if head_pose is not None or antennas is not None or body_yaw is not None:
-                robot.goto_target(
-                    head=head_pose,
-                    antennas=antennas,
-                    duration=duration,
-                    body_yaw=body_yaw,
-                )
-                logger.info(f"  → Movement completed (duration={duration:.2f}s)")
-            else:
-                logger.warning("  → Skipping action with no movement")
+            robot.goto_target(
+                head=head_pose,
+                antennas=antennas,
+                duration=duration,
+                body_yaw=body_yaw,
+            )
+            logger.info(f"  → Movement completed (duration={duration:.2f}s)")
 
+
+        # (2) Wait action
         elif isinstance(action, IRWaitAction):
             # Handle wait action
             duration = action.duration
             logger.info(f"  → Waiting {duration:.2f}s...")
             time.sleep(duration)
 
+
+        # (3) Play sound action
         elif isinstance(action, IRPlaySoundAction):
             # Handle sound playback
             sound_name = action.sound_name
             logger.info(f"  → Playing sound: {sound_name}")
 
-            # Search for sound file in multiple locations (priority order)
-            search_locations = [
-                # 1. Relative to script directory
-                script_dir / sound_name,
-                script_dir / f"{sound_name}.wav",
-                # 2. Absolute path or relative to cwd
-                Path(sound_name),
-                Path(sound_name).with_suffix(".wav"),
-                # 3. In sounds/ subdirectory relative to script
-                script_dir / "sounds" / sound_name,
-                script_dir / "sounds" / f"{sound_name}.wav",
-                # 4. In sounds/ subdirectory relative to cwd
-                Path("sounds") / sound_name,
-                Path("sounds") / f"{sound_name}.wav",
-            ]
-
+            # Search for sound file relative to the script, with various extensions
+            search_locations = [script_dir / f"{sound_name}.{ext}" for ext in ["wav", "mp3", "ogg"]]
             sound_path = None
             for location in search_locations:
                 if location.exists():
                     sound_path = location
                     break
-
             if sound_path is None:
                 logger.warning(f"  → Sound file not found: {sound_name}")
-                logger.warning(f"     Searched in: {script_dir}, {Path.cwd()}, sounds/")
                 continue
 
-            logger.info(f"  → Found sound at: {sound_path}")
             robot.media.play_sound(str(sound_path))
 
             # If blocking, wait for the sound to finish
             if action.blocking and action.duration:
                 time.sleep(action.duration)
 
+
+        # (4) Picture action
         elif isinstance(action, IRPictureAction):
-            # Handle picture capture
             logger.info("  → Capturing picture...")
             frame = robot.media.get_frame()
 

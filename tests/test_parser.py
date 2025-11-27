@@ -11,7 +11,7 @@ class TestParser:
 
     def test_parse_description(self):
         """Test that DESCRIPTION header is parsed correctly."""
-        source = """DESCRIPTION This is a test tool
+        source = """"This is a test tool"
 look left"""
         lexer = Lexer(source)
         tokens = lexer.tokenize()
@@ -22,7 +22,7 @@ look left"""
 
     def test_parse_action_statement(self):
         """Test that simple action statements are parsed."""
-        source = """DESCRIPTION test
+        source = """"test"
 look left
 turn right"""
         lexer = Lexer(source)
@@ -38,7 +38,7 @@ turn right"""
 
     def test_parse_action_with_strength(self):
         """Test that actions with numeric strength are parsed."""
-        source = """DESCRIPTION test
+        source = """"test"
 turn left 45"""
         lexer = Lexer(source)
         tokens = lexer.tokenize()
@@ -49,7 +49,7 @@ turn left 45"""
 
     def test_parse_action_with_duration(self):
         """Test that actions with duration are parsed."""
-        source = """DESCRIPTION test
+        source = """"test"
 look up 2s"""
         lexer = Lexer(source)
         tokens = lexer.tokenize()
@@ -60,7 +60,7 @@ look up 2s"""
 
     def test_parse_compound_action_with_and(self):
         """Test that compound actions with 'and' are parsed."""
-        source = """DESCRIPTION test
+        source = """"test"
 turn left and look right"""
         lexer = Lexer(source)
         tokens = lexer.tokenize()
@@ -73,7 +73,7 @@ turn left and look right"""
 
     def test_parse_repeat_block(self):
         """Test that repeat blocks are parsed."""
-        source = """DESCRIPTION test
+        source = """"test"
 repeat 3
     look left
     look right"""
@@ -89,7 +89,7 @@ repeat 3
 
     def test_parse_wait_statement(self):
         """Test that wait statements are parsed."""
-        source = """DESCRIPTION test
+        source = """"test"
 wait 2s"""
         lexer = Lexer(source)
         tokens = lexer.tokenize()
@@ -100,7 +100,7 @@ wait 2s"""
 
     def test_parse_picture_statement(self):
         """Test that picture statements are parsed."""
-        source = """DESCRIPTION test
+        source = """"test"
 picture"""
         lexer = Lexer(source)
         tokens = lexer.tokenize()
@@ -111,7 +111,7 @@ picture"""
 
     def test_parse_play_sound_with_duration(self):
         """Test that play sound with duration is parsed."""
-        source = """DESCRIPTION test
+        source = """"test"
 play mysound 5s"""
         lexer = Lexer(source)
         tokens = lexer.tokenize()
@@ -124,7 +124,7 @@ play mysound 5s"""
 
     def test_parse_error_and_with_picture(self):
         """Test that 'and picture' produces a parse error."""
-        source = """DESCRIPTION test
+        source = """"test"
 look left and picture"""
         lexer = Lexer(source)
         tokens = lexer.tokenize()
@@ -137,7 +137,7 @@ look left and picture"""
 
     def test_parse_antenna_with_modifier(self):
         """Test parsing antenna with left/right/both modifier."""
-        source = """DESCRIPTION test
+        source = """"test"
 antenna both up"""
         lexer = Lexer(source)
         tokens = lexer.tokenize()
@@ -149,7 +149,7 @@ antenna both up"""
 
     def test_parse_nested_repeat_blocks(self):
         """Test parsing nested repeat blocks."""
-        source = """DESCRIPTION test
+        source = """"test"
 repeat 2
     repeat 3
         look left"""
@@ -167,7 +167,7 @@ repeat 2
 
     def test_parse_qualitative_strength(self):
         """Test parsing qualitative strength keywords."""
-        source = """DESCRIPTION test
+        source = """"test"
 turn left little"""
         lexer = Lexer(source)
         tokens = lexer.tokenize()
@@ -178,7 +178,7 @@ turn left little"""
 
     def test_parse_duration_keyword(self):
         """Test parsing duration keywords like 'fast' or 'slow'."""
-        source = """DESCRIPTION test
+        source = """"test"
 look left fast"""
         lexer = Lexer(source)
         tokens = lexer.tokenize()
@@ -189,7 +189,7 @@ look left fast"""
 
     def test_parse_loop_sound(self):
         """Test parsing loop sound command."""
-        source = """DESCRIPTION test
+        source = """"test"
 loop mysound 10s"""
         lexer = Lexer(source)
         tokens = lexer.tokenize()
@@ -200,23 +200,9 @@ loop mysound 10s"""
         assert program.statements[0].loop is True
         assert program.statements[0].duration == 10.0
 
-    @pytest.mark.xfail(reason="Multi-line descriptions not yet supported - requires lexer enhancement")
-    def test_parse_multiline_description(self):
-        """Test parsing multi-line DESCRIPTION."""
-        source = """DESCRIPTION This is a
-    multi-line description
-look left"""
-        lexer = Lexer(source)
-        tokens = lexer.tokenize()
-        parser = Parser(tokens)
-        program = parser.parse()
-
-        # Description should capture the full text
-        assert "multi" in program.description.lower()
-
     def test_parse_error_invalid_direction(self):
         """Test parse error for invalid direction."""
-        source = """DESCRIPTION test
+        source = """"test"
 turn up"""
         lexer = Lexer(source)
         tokens = lexer.tokenize()
@@ -230,7 +216,7 @@ turn up"""
 
     def test_parse_error_missing_antenna_modifier(self):
         """Test parse error when antenna missing modifier."""
-        source = """DESCRIPTION test
+        source = """"test"
 antenna up"""
         lexer = Lexer(source)
         tokens = lexer.tokenize()
