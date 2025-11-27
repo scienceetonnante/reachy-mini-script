@@ -1,15 +1,16 @@
 """rmscript: A kid-friendly robot programming language for Reachy Mini."""
 
-from rmscript.compiler import RMScriptCompiler, compile_script, compile_file, verify_script
+from rmscript.adapters import ExecutionAdapter, ExecutionContext
+from rmscript.compiler import RMScriptCompiler, compile_file, compile_script, verify_script
 from rmscript.ir import (
-    CompilationResult,
     CompilationError,
+    CompilationResult,
     IRAction,
-    IRWaitAction,
     IRPictureAction,
     IRPlaySoundAction,
+    IRWaitAction,
 )
-from rmscript.adapters import ExecutionAdapter, ExecutionContext
+from rmscript.types import IRActionType, IRList
 
 __version__ = "0.1.0"
 
@@ -26,6 +27,9 @@ __all__ = [
     "IRWaitAction",
     "IRPictureAction",
     "IRPlaySoundAction",
+    # Type aliases
+    "IRActionType",
+    "IRList",
     # Adapter protocol
     "ExecutionAdapter",
     "ExecutionContext",

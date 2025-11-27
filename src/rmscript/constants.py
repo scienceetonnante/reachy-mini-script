@@ -2,7 +2,6 @@
 
 from typing import Dict, List
 
-
 # Default Strengths
 DEFAULT_ANGLE = 30  # degrees (for turn, look, tilt)
 DEFAULT_DISTANCE = 10  # mm (for head translation)

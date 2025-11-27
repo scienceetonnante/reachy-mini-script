@@ -1,6 +1,9 @@
 # rmscript - Kid-Friendly Robot Programming
 
-rmscript is a natural language-inspired programming language designed to make robot programming accessible and fun for children. It compiles to Python code that controls the Reachy Mini robot.
+> **For developers:** See [README.md](README.md) for installation, API documentation, and compiler architecture.
+
+rmscript is a natural language-inspired programming language designed to make robot programming accessible and fun for children.
+It compiles to an intermediate representation (IR) that can be executed by different adapters on the Reachy Mini robot.
 
 ## Example Usage
 
@@ -16,11 +19,13 @@ look right
 look center
 ```
 
-Test the script using the provided runner (after starting the reachy-mini-daemon):
+Test the script using the provided example runner (after starting the reachy-mini-daemon):
 
+```bash
+python examples/run_rmscript.py path/to/hello.rmscript
 ```
-python src/reachy_mini_conversation_app/rmscript/run_rmscript.py path/to/hello.rmscript
-```
+
+**Note:** The `run_rmscript.py` file is located in the `examples/` directory of the rmscript package.
 
 
 ## Language Syntax
@@ -35,10 +40,6 @@ DESCRIPTION Wave hello to someone
 look left
 wait 1s
 ```
-
-**Key features:**
-- **Tool name**: Automatically derived from the filename (e.g., `wave_hello.rmscript` → tool name is `wave_hello`)
-- **DESCRIPTION** (optional): One-line description used for LLM tool registration
 
 ### Basic Commands
 
@@ -108,7 +109,7 @@ turn center       # Face forward
 **Note:** The `turn` command rotates both the body yaw and the head yaw together, since the body carries the head.
 
 **Physical Limits:**
-- Body yaw: ±160° (safe range)
+- Body yaw: ±160° (safe limit: ±120°)
 
 ### Antenna
 
@@ -148,7 +149,7 @@ antenna right right  # Right antenna pointing right (90°)
 ```
 
 **Physical Limits:**
-- Antenna angle: ±180° (safe recommended: ±120°)
+- Antenna angle: ±180° (safe limit: ±120°)
 
 ### Head Translation
 
@@ -166,9 +167,9 @@ head down 3        # Move head down 3mm
 ```
 
 **Physical Limits:**
-- X (forward/back): ±50mm typical
-- Y (left/right): ±50mm typical
-- Z (up/down): +20mm / -30mm typical
+- X (forward/back): ±30mm
+- Y (left/right): ±30mm
+- Z (up/down): +20mm / -40mm
 
 ### Tilt (Head Roll)
 
@@ -197,7 +198,7 @@ wait 2.5s         # Wait 2.5 seconds
 
 ### Picture
 
-Take a picture with the robot's camera and add it to the conversation:
+Take a picture with the robot's camera:
 
 ```rmscript
 picture           # Take a picture
@@ -211,7 +212,6 @@ The picture command captures a frame from the camera and returns it as a base64-
 2. **Capture timing**: Picture is captured at the right moment in the movement sequence
 3. **File storage**: Pictures are automatically saved to `/tmp/reachy_picture_YYYYMMDD_HHMMSS_microseconds.jpg`
 4. **Color handling**: Images are captured in RGB format with proper color conversion
-5. **LLM integration**: When called by the LLM, pictures are automatically added to the conversation
 
 **Single picture (LLM-compatible):**
 ```rmscript
@@ -247,7 +247,9 @@ picture
 look center
 ```
 
-Each `picture` command captures a separate image. For single-picture scripts, the image is returned in Camera-compatible format (`b64_im`) for LLM integration. For multi-picture scripts, images are returned as an array.
+Each `picture` command captures a separate image. 
+For single-picture scripts, the image is returned in Camera-compatible format (`b64_im`) for LLM integration. 
+For multi-picture scripts, images are returned as an array.
 
 **Use with `run_rmscript.py`:**
 
@@ -255,21 +257,7 @@ When testing scripts with `run_rmscript.py`, pictures are:
 - Saved to `/tmp` with timestamped filenames
 - Logged with full paths for easy access
 - Displayed in the execution summary
-
-**Use with LLM conversation:**
-
-When called as a tool by the LLM:
-- Single picture: Automatically fed to the LLM conversation (like Camera tool)
-- Multiple pictures: Available as base64 data (future enhancement for multi-image display)
-- Gradio UI: Picture thumbnails displayed in the conversation interface
-
-**Example conversation:**
-```
-User: "Can you check what's behind you?"
-→ LLM calls: check_behind()
-→ Robot: turns, captures picture, returns to center
-→ LLM sees the picture and responds: "I can see a desk with a laptop and some books!"
-```
+- 
 
 ### Play Sound
 
@@ -388,6 +376,8 @@ head forward maximum    # 28mm (under 30mm limit)
 
 **Context-Aware Values:**
 
+TODO: check physical limits and adjust values accordingly.
+
 The same qualitative keyword maps to different values depending on the movement type, respecting physical limits:
 
 | Keyword | VERY_SMALL | SMALL | MEDIUM | LARGE | VERY_LARGE |
@@ -452,7 +442,8 @@ antenna both up and look up 25 and turn left 30
 
 This merges into a single `goto_target()` call with all parameters.
 
-**Important:** The `and` keyword can only combine movement commands (turn, look, head, tilt, antenna). You **cannot** combine movements with control commands (picture, play, loop, wait) using `and`. Use separate lines instead:
+**Important:** The `and` keyword can only combine movement commands (turn, look, head, tilt, antenna). 
+You **cannot** combine movements with control commands (picture, play, loop, wait) using `and`. Use separate lines instead:
 
 ```rmscript
 # ❌ ERROR - Cannot combine movement with picture
@@ -471,227 +462,8 @@ turn right
 play mysound
 ```
 
-## Compiler Architecture
 
-### Overview
 
-The compiler uses a 5-stage pipeline:
-
-```
-Source Code → Lexer → Parser → Semantic Analyzer → Optimizer → Code Generator
-```
-
-### Stage 1: Lexer (Tokenization)
-
-Converts source text into tokens with indentation tracking:
-
-```python
-from reachy_mini.rmscript.lexer import Lexer
-
-source = "look left\nwait 1s"
-lexer = Lexer(source)
-tokens = lexer.tokenize()
-# → [Token(KEYWORD_LOOK, 'look', L1:C1), Token(DIRECTION, 'left', L1:C6), ...]
-```
-
-Features:
-- Python-like INDENT/DEDENT tokens
-- Case-insensitive keyword matching
-- Comment stripping
-- Line/column tracking for error messages
-
-### Stage 2: Parser (AST Construction)
-
-Builds an Abstract Syntax Tree from tokens:
-
-```python
-from reachy_mini.rmscript.parser import Parser
-
-ast = Parser(tokens).parse()
-# → Program(tool_name='...', description='...', statements=[...])
-```
-
-Features:
-- Keyword reuse detection for `and` chains
-- Direction validation per keyword
-- Repeat block nesting
-- Syntax error reporting
-
-### Stage 3: Semantic Analyzer
-
-Applies defaults, validates ranges, and generates IR:
-
-```python
-from reachy_mini.rmscript.semantic import SemanticAnalyzer
-
-ir, errors, warnings = SemanticAnalyzer().analyze(ast)
-# → List[Action | WaitAction], List[CompilationError], List[CompilationError]
-```
-
-Features:
-- Default value resolution (30° for angles, 1s for duration)
-- Qualitative → quantitative conversion
-- Duration keyword mapping
-- Physical limit validation
-- Action merging (multiple SingleActions → one Action)
-
-### Stage 4: Optimizer
-
-Optimizes the IR:
-
-```python
-from reachy_mini.rmscript.optimizer import Optimizer
-
-optimized_ir = Optimizer().optimize(ir)
-```
-
-Features:
-- Consecutive wait merging
-- No-op action removal
-
-### Stage 5: Code Generator
-
-Creates executable Python functions:
-
-```python
-from reachy_mini.rmscript.codegen import CodeGenerator
-
-executable = CodeGenerator().generate(tool_name, description, ir)
-# → Callable that executes the behavior
-```
-
-Features:
-- Direct execution: `executable(mini)`
-- Readable code generation: `to_python_code()`
-- Proper imports and function signatures
-
-## API Reference
-
-### rmscriptCompiler
-
-Main compiler class.
-
-```python
-from reachy_mini.rmscript import rmscriptCompiler
-
-compiler = rmscriptCompiler(log_level="INFO")
-tool = compiler.compile(source_code)
-```
-
-**Parameters:**
-- `log_level` (str): Logging level - "DEBUG", "INFO", "WARNING", "ERROR"
-
-**Returns:**
-- `CompiledTool`: Compilation result object
-
-### verify_rmscript
-
-Verification function that checks if rmscript code compiles without generating executable code.
-
-```python
-from reachy_mini_conversation_app.rmscript import verify_rmscript
-
-is_valid, errors = verify_rmscript(source_code)
-if not is_valid:
-    for error in errors:
-        print(error)
-```
-
-**Parameters:**
-- `source_code` (str): rmscript source code to verify
-
-**Returns:**
-- `tuple[bool, list[str]]`: Tuple of (is_valid, error_messages)
-  - `is_valid`: True if compilation succeeds, False otherwise
-  - `error_messages`: List of error and warning messages (empty if valid)
-
-**Example:**
-
-```python
-script = """
-DESCRIPTION Test script
-look left and picture
-"""
-
-is_valid, errors = verify_rmscript(script)
-# is_valid = False
-# errors = ["❌ Line 3: Cannot combine movement with 'picture' using 'and'. Use separate lines instead."]
-```
-
-### CompiledTool
-
-Result of compilation.
-
-```python
-class CompiledTool:
-    name: str                        # Tool name
-    description: str                      # Tool description
-    executable: Callable             # Function to execute on robot
-    success: bool                    # Compilation succeeded?
-    errors: List[CompilationError]   # Compilation errors
-    warnings: List[CompilationError] # Compilation warnings
-    source_code: str                 # Original source
-    ir: List[Action | WaitAction]    # Intermediate representation
-
-    def execute(self, mini: ReachyMini) -> None:
-        """Execute the compiled behavior on the robot."""
-
-    def to_python_code(self) -> str:
-        """Generate readable Python code."""
-```
-
-**Usage:**
-
-```python
-if tool.success:
-    # Execute on robot
-    with ReachyMini() as mini:
-        tool.execute(mini)
-
-    # Or get Python code
-    print(tool.to_python_code())
-else:
-    # Handle errors
-    for error in tool.errors:
-        print(f"{error.severity} Line {error.line}: {error.message}")
-```
-
-### CompilationError
-
-Error or warning from compilation.
-
-```python
-@dataclass
-class CompilationError:
-    line: int          # Line number (1-indexed)
-    column: int        # Column number (1-indexed)
-    message: str       # Error/warning message
-    severity: str      # "ERROR" or "WARNING"
-```
-
-### Action (IR)
-
-Intermediate representation of a movement.
-
-```python
-@dataclass
-class Action:
-    head_pose: Optional[np.ndarray]  # 4x4 transformation matrix
-    antennas: Optional[np.ndarray]   # [left, right] angles in radians
-    body_yaw: Optional[float]        # Body rotation in radians
-    duration: float                  # Movement duration in seconds
-    interpolation: str               # "minjerk", "linear", "ease", "cartoon"
-```
-
-### WaitAction (IR)
-
-Intermediate representation of a wait/pause.
-
-```python
-@dataclass
-class WaitAction:
-    duration: float  # Wait duration in seconds
-```
 
 ## Examples
 
@@ -1007,15 +779,4 @@ repeat 3
 **Solution:** Remember: `left` = positive yaw, `right` = negative yaw in the generated code. `up` = negative pitch, `down` = positive pitch. This matches the robot's actual coordinate system.
 
 
-## Contributing
 
-To extend rmscript:
-
-1. **Add new keywords**: Update `lexer.py`, `parser.py`, and `semantic.py`
-2. **Add new features**: Modify the appropriate compiler stage
-3. **Add tests**: Create integration tests in `tests/test_rmscript/`
-4. **Update docs**: Keep this README and examples current
-
-## License
-
-Same as Reachy Mini SDK.

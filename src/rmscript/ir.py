@@ -1,7 +1,7 @@
 """Intermediate representation and compilation result types for ReachyMiniScript."""
 
+from dataclasses import dataclass, field
 from typing import List, Literal, Optional
-from dataclasses import field, dataclass
 
 import numpy as np
 import numpy.typing as npt

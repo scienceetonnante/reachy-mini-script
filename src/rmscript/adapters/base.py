@@ -1,9 +1,9 @@
 """Base adapter protocol for executing rmscript IR."""
 
-from typing import Protocol, Any, Dict, List, Optional
 from dataclasses import dataclass
+from typing import Any, Dict, List, Optional, Protocol
 
-from rmscript.ir import IRAction, IRWaitAction, IRPictureAction, IRPlaySoundAction
+from rmscript.ir import IRAction, IRPictureAction, IRPlaySoundAction, IRWaitAction
 
 
 @dataclass

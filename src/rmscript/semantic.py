@@ -3,77 +3,77 @@
 from typing import List
 
 import numpy as np
-
 from reachy_mini.utils import create_head_pose
-from rmscript.ir import (
-    IRAction,
-    IRWaitAction,
-    IRPictureAction,
-    IRPlaySoundAction,
-    CompilationError,
-)
+
 from rmscript.ast_nodes import (
-    Program,
-    Statement,
     ActionChain,
-    RepeatBlock,
-    SingleAction,
-    WaitStatement,
     PictureStatement,
     PlaySoundStatement,
+    Program,
+    RepeatBlock,
+    SingleAction,
+    Statement,
+    WaitStatement,
 )
 from rmscript.constants import (
+    ANTENNA_CLOCK_KEYWORDS,
+    ANTENNA_DIRECTION_KEYWORDS,
     # Legacy angle/distance constants
     ANTENNA_LARGE,
-    ANTENNA_SMALL,
-    DEFAULT_ANGLE,
     ANTENNA_MEDIUM,
-    BODY_YAW_LARGE,
-    BODY_YAW_SMALL,
-    HEAD_YAW_LARGE,
-    HEAD_YAW_SMALL,
-    LARGE_KEYWORDS,
-    SMALL_KEYWORDS,
-    BODY_YAW_MEDIUM,
-    CENTER_SYNONYMS,
-    HEAD_YAW_MEDIUM,
-    MEDIUM_KEYWORDS,
-    DEFAULT_DISTANCE,
-    BACKWARD_SYNONYMS,
-    # Other constants
-    DEFAULT_DURATION,
-    MAX_BODY_YAW_DEG,
-    DURATION_KEYWORDS,
-    MAX_HEAD_ROLL_DEG,
-    TRANSLATION_LARGE,
-    TRANSLATION_SMALL,
+    ANTENNA_SMALL,
     ANTENNA_VERY_LARGE,
     ANTENNA_VERY_SMALL,
-    MAX_HEAD_PITCH_DEG,
-    TRANSLATION_MEDIUM,
+    BACKWARD_SYNONYMS,
+    BODY_YAW_LARGE,
+    BODY_YAW_MEDIUM,
+    BODY_YAW_SMALL,
     BODY_YAW_VERY_LARGE,
     # Context-aware qualitative constants
     BODY_YAW_VERY_SMALL,
+    CENTER_SYNONYMS,
+    DEFAULT_ANGLE,
+    DEFAULT_ANTENNA_ANGLE,
+    DEFAULT_DISTANCE,
+    # Other constants
+    DEFAULT_DURATION,
+    DURATION_KEYWORDS,
+    HEAD_PITCH_ROLL_LARGE,
+    HEAD_PITCH_ROLL_MEDIUM,
+    HEAD_PITCH_ROLL_SMALL,
+    HEAD_PITCH_ROLL_VERY_LARGE,
+    HEAD_PITCH_ROLL_VERY_SMALL,
+    HEAD_YAW_LARGE,
+    HEAD_YAW_MEDIUM,
+    HEAD_YAW_SMALL,
     HEAD_YAW_VERY_LARGE,
     HEAD_YAW_VERY_SMALL,
-    VERY_LARGE_KEYWORDS,
-    VERY_SMALL_KEYWORDS,
-    DEFAULT_ANTENNA_ANGLE,
-    HEAD_PITCH_ROLL_LARGE,
-    HEAD_PITCH_ROLL_SMALL,
+    LARGE_KEYWORDS,
     MAX_ANTENNA_ANGLE_DEG,
-    ANTENNA_CLOCK_KEYWORDS,
-    HEAD_PITCH_ROLL_MEDIUM,
-    SAFE_ANTENNA_ANGLE_DEG,
-    TRANSLATION_VERY_LARGE,
-    TRANSLATION_VERY_SMALL,
+    MAX_BODY_YAW_DEG,
+    MAX_HEAD_PITCH_DEG,
+    MAX_HEAD_ROLL_DEG,
     MAX_HEAD_TRANSLATION_X_MM,
     MAX_HEAD_TRANSLATION_Y_MM,
     MAX_HEAD_TRANSLATION_Z_MM,
+    MEDIUM_KEYWORDS,
     MIN_HEAD_TRANSLATION_Z_MM,
-    ANTENNA_DIRECTION_KEYWORDS,
-    HEAD_PITCH_ROLL_VERY_LARGE,
-    HEAD_PITCH_ROLL_VERY_SMALL,
+    SAFE_ANTENNA_ANGLE_DEG,
+    SMALL_KEYWORDS,
+    TRANSLATION_LARGE,
+    TRANSLATION_MEDIUM,
+    TRANSLATION_SMALL,
+    TRANSLATION_VERY_LARGE,
+    TRANSLATION_VERY_SMALL,
+    VERY_LARGE_KEYWORDS,
+    VERY_SMALL_KEYWORDS,
+)
+from rmscript.ir import (
+    CompilationError,
+    IRAction,
+    IRPictureAction,
+    IRPlaySoundAction,
+    IRWaitAction,
 )
 
 
@@ -152,11 +152,16 @@ class SemanticAnalyzer:
         duration = DEFAULT_DURATION
         if wait.duration is not None:
             duration = wait.duration
+            original_text = f"wait {duration}s"
         elif wait.duration_keyword is not None:
             duration = DURATION_KEYWORDS.get(wait.duration_keyword, DEFAULT_DURATION)
+            original_text = f"wait {wait.duration_keyword}"
+        else:
+            duration = DEFAULT_DURATION
+            original_text = "wait"
 
         return IRWaitAction(
-            duration=duration, source_line=wait.line, original_text="wait"
+            duration=duration, source_line=wait.line, original_text=original_text
         )
 
     def analyze_picture(self, picture: PictureStatement) -> IRPictureAction:
@@ -209,7 +214,40 @@ class SemanticAnalyzer:
         # Merge all actions into a single IRAction
         merged = self.merge_actions(resolved_actions, chain.line)
 
+        # Add original text reconstruction
+        merged.original_text = self._reconstruct_action_text(chain)
+
         return merged
+
+    def _reconstruct_action_text(self, chain: ActionChain) -> str:
+        """Reconstruct original text from ActionChain AST."""
+        parts = []
+        for action in chain.actions:
+            action_parts = [action.keyword]
+
+            # Add antenna modifier if present
+            if action.antenna_modifier:
+                action_parts.append(action.antenna_modifier)
+
+            # Add direction if present
+            if action.direction:
+                action_parts.append(action.direction)
+
+            # Add strength (qualitative or quantitative)
+            if action.strength_qualitative:
+                action_parts.append(action.strength_qualitative)
+            elif action.strength is not None:
+                action_parts.append(str(int(action.strength) if action.strength.is_integer() else action.strength))
+
+            # Add duration (keyword or quantitative)
+            if action.duration_keyword:
+                action_parts.append(action.duration_keyword)
+            elif action.duration is not None:
+                action_parts.append(f"{action.duration}s")
+
+            parts.append(" ".join(action_parts))
+
+        return " and ".join(parts)
 
     def resolve_action(self, action: SingleAction) -> "ResolvedAction":
         """Resolve a single action - apply defaults and convert qualitative."""

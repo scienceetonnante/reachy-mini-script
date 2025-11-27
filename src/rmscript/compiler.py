@@ -3,11 +3,11 @@
 import logging
 from pathlib import Path
 
+from rmscript.ir import CompilationError, CompilationResult
 from rmscript.lexer import Lexer
-from rmscript.ir import CompilationResult, CompilationError
-from rmscript.parser import Parser, ParseError
-from rmscript.semantic import SemanticAnalyzer
 from rmscript.optimizer import Optimizer
+from rmscript.parser import ParseError, Parser
+from rmscript.semantic import SemanticAnalyzer
 
 
 class RMScriptCompiler:

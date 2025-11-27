@@ -1,7 +1,7 @@
 """Abstract Syntax Tree node definitions for ReachyMiniScript."""
 
-from typing import List, Optional
 from dataclasses import dataclass
+from typing import List, Optional
 
 
 @dataclass

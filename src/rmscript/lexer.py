@@ -1,8 +1,8 @@
 """Lexer for ReachyMiniScript - tokenization and indentation handling."""
 
+from dataclasses import dataclass
 from enum import Enum, auto
 from typing import List, Optional
-from dataclasses import dataclass
 
 
 class TokenType(Enum):
@@ -44,6 +44,9 @@ class TokenType(Enum):
 
     # Identifiers
     IDENTIFIER = auto()  # For tool names and other identifiers
+
+    # Punctuation (for descriptions)
+    PUNCTUATION = auto()  # . , - : ; ! ? ( )
 
 
 @dataclass
@@ -99,8 +102,8 @@ class Lexer:
         # Qualitative strength - import from constants
         from rmscript.constants import (
             LARGE_KEYWORDS,
-            SMALL_KEYWORDS,
             MEDIUM_KEYWORDS,
+            SMALL_KEYWORDS,
             VERY_LARGE_KEYWORDS,
             VERY_SMALL_KEYWORDS,
         )
@@ -301,6 +304,13 @@ class Lexer:
             # Read identifiers/keywords
             if (ch := self.peek()) is not None and (ch.isalpha() or ch == "_"):
                 tokens.append(self.read_identifier())
+                continue
+
+            # Handle punctuation (for descriptions)
+            if (ch := self.peek()) is not None and ch in ".,;:!?()-":
+                punct_col = self.column
+                punct_char = self.advance()
+                tokens.append(Token(TokenType.PUNCTUATION, punct_char, self.line, punct_col))
                 continue
 
             # Unknown character

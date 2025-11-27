@@ -2,25 +2,25 @@
 
 from typing import List, Optional
 
-from rmscript.lexer import Token, TokenType
 from rmscript.ast_nodes import (
-    Program,
-    Statement,
     ActionChain,
-    RepeatBlock,
-    SingleAction,
-    WaitStatement,
     PictureStatement,
     PlaySoundStatement,
+    Program,
+    RepeatBlock,
+    SingleAction,
+    Statement,
+    WaitStatement,
 )
 from rmscript.constants import (
+    ANTENNA_DIRECTION_KEYWORDS,
+    ANTENNA_MODIFIERS,
     HEAD_DIRECTIONS,
     LOOK_DIRECTIONS,
     TILT_DIRECTIONS,
     TURN_DIRECTIONS,
-    ANTENNA_MODIFIERS,
-    ANTENNA_DIRECTION_KEYWORDS,
 )
+from rmscript.lexer import Token, TokenType
 
 
 class ParseError(Exception):
@@ -269,7 +269,14 @@ class Parser:
         if self.current().type != TokenType.NUMBER:
             raise self.error("Expected number after 'repeat'")
 
-        count = int(float(self.current().value))
+        # Validate repeat count is positive integer
+        count_value = float(self.current().value)
+        if count_value != int(count_value):
+            raise self.error(f"Repeat count must be an integer, got {count_value}")
+        count = int(count_value)
+        if count <= 0:
+            raise self.error(f"Repeat count must be positive, got {count}")
+
         self.advance()
 
         self.skip_newlines()

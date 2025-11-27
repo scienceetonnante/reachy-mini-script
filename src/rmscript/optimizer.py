@@ -1,14 +1,13 @@
 """Optimizer for ReachyMiniScript - further optimize IR for execution."""
 
-from typing import List
-
-from rmscript.ir import IRAction, IRWaitAction, IRPictureAction, IRPlaySoundAction
+from rmscript.ir import IRAction, IRWaitAction
+from rmscript.types import IRList
 
 
 class Optimizer:
     """Optimizes intermediate representation."""
 
-    def optimize(self, ir: List[IRAction | IRWaitAction | IRPictureAction | IRPlaySoundAction]) -> List[IRAction | IRWaitAction | IRPictureAction | IRPlaySoundAction]:
+    def optimize(self, ir: IRList) -> IRList:
         """Optimize IR.
 
         Current optimizations:
@@ -19,7 +18,7 @@ class Optimizer:
         - Combine compatible actions with same duration
         - Minimize movement time
         """
-        optimized: List[IRAction | IRWaitAction | IRPictureAction | IRPlaySoundAction] = []
+        optimized: IRList = []
 
         i = 0
         while i < len(ir):
