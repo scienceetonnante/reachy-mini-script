@@ -1,5 +1,7 @@
 """Optimizer for ReachyMiniScript - further optimize IR for execution."""
 
+# Note: probably overkill for now, but useful if we want to add more optimizations later.
+
 from rmscript.ir import IRAction, IRWaitAction
 from rmscript.types import IRList
 
