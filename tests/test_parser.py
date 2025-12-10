@@ -227,6 +227,32 @@ antenna up"""
 
         assert "antenna" in str(excinfo.value).lower()
 
+    def test_parse_without_description(self):
+        """Test that script without description uses default."""
+        source = """look left
+turn right"""
+        lexer = Lexer(source)
+        tokens = lexer.tokenize()
+        parser = Parser(tokens)
+        program = parser.parse()
+
+        assert program.description == "This is a Reachy Mini Script"
+        assert len(program.statements) == 2
+
+    def test_parse_error_misplaced_description(self):
+        """Test that description string not on first line is an error."""
+        source = """look left
+"This is misplaced"
+turn right"""
+        lexer = Lexer(source)
+        tokens = lexer.tokenize()
+        parser = Parser(tokens)
+
+        with pytest.raises(ParseError) as excinfo:
+            parser.parse()
+
+        assert "first line" in str(excinfo.value).lower()
+
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

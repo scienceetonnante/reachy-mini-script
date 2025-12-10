@@ -41,10 +41,26 @@ look left
 wait 1s
 ```
 
-**Important:** The description must be:
-- A quoted string (single or double quotes)
-- The first line of the file (excluding comments and blank lines)
-- Present in every script (required)
+**Description line (optional):**
+- A quoted string (single or double quotes) on the first non-blank, non-comment line
+- If omitted, a default description is used: `"This is a Reachy Mini Script"`
+- If a quoted string appears anywhere else in the script, it will cause an error
+
+```rmscript
+# Valid: with description
+"My robot dance"
+look left
+turn right
+
+# Valid: without description (uses default)
+look left
+turn right
+
+# Invalid: misplaced description
+look left
+"This will cause an error"
+turn right
+```
 
 ### Basic Commands
 

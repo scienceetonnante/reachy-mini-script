@@ -223,12 +223,12 @@ teleport center'''
         assert any("cannot combine" in msg.lower() for msg in messages)
 
     def test_verify_missing_description(self):
-        """Test verify_script without description string."""
+        """Test verify_script without description string uses default."""
         is_valid, messages = verify_script("look left\nwait 1s")
 
-        # Description is now required - should fail
-        assert isinstance(is_valid, bool)
-        assert isinstance(messages, list)
+        # Description is now optional - should succeed with default
+        assert is_valid is True
+        assert messages == []
 
     def test_verify_returns_tuple(self):
         """Test verify_script returns correct tuple structure."""

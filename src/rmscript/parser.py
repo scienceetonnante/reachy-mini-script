@@ -85,18 +85,19 @@ class Parser:
 
         self.skip_newlines()
 
-        # Parse required description string (must be first line)
-        if self.current().type != TokenType.STRING:
-            raise self.error("Expected description string as first line (e.g., \"This is the description\")")
+        # Check if first non-blank line is a description string (optional)
+        if self.current().type == TokenType.STRING:
+            program.description = self.current().value
+            self.advance()
 
-        program.description = self.current().value
-        self.advance()
+            # Ensure newline after description
+            if self.current().type != TokenType.NEWLINE and self.current().type != TokenType.EOF:
+                raise self.error("Expected newline after description string")
 
-        # Ensure newline after description
-        if self.current().type != TokenType.NEWLINE and self.current().type != TokenType.EOF:
-            raise self.error("Expected newline after description string")
-
-        self.skip_newlines()
+            self.skip_newlines()
+        else:
+            # No description provided, use default
+            program.description = "This is a Reachy Mini Script"
 
         # Note: tool_name will be set from filename by the compiler
         program.tool_name = ""
@@ -135,6 +136,13 @@ class Parser:
     def parse_statement(self) -> Optional[Statement]:
         """Parse a single statement."""
         token = self.current()
+
+        # Error on misplaced description string (must be first line if present)
+        if token.type == TokenType.STRING:
+            raise self.error(
+                "Description string must be on the first line. "
+                "Move this string to the beginning of the script or remove it."
+            )
 
         # Check for repeat block
         if token.type == TokenType.KEYWORD_REPEAT:
