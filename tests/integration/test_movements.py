@@ -285,8 +285,8 @@ antenna both left"""
 
         assert result.success
         action = result.ir[0]
-        assert action.antennas[0] == pytest.approx(math.radians(-90), abs=0.01)
-        assert action.antennas[1] == pytest.approx(math.radians(-90), abs=0.01)
+        assert action.antennas[0] == pytest.approx(math.radians(90), abs=0.01)
+        assert action.antennas[1] == pytest.approx(math.radians(90), abs=0.01)
 
     def test_antenna_directional_right(self):
         """Test antenna with 'right' direction."""
@@ -296,8 +296,8 @@ antenna both right"""
 
         assert result.success
         action = result.ir[0]
-        assert action.antennas[0] == pytest.approx(math.radians(90), abs=0.01)
-        assert action.antennas[1] == pytest.approx(math.radians(90), abs=0.01)
+        assert action.antennas[0] == pytest.approx(math.radians(-90), abs=0.01)
+        assert action.antennas[1] == pytest.approx(math.radians(-90), abs=0.01)
 
     def test_antenna_directional_down(self):
         """Test antenna with 'down' direction."""
@@ -307,8 +307,8 @@ antenna both down"""
 
         assert result.success
         action = result.ir[0]
-        assert action.antennas[0] == pytest.approx(math.radians(180), abs=0.01)
-        assert action.antennas[1] == pytest.approx(math.radians(180), abs=0.01)
+        assert action.antennas[0] == pytest.approx(math.radians(-180), abs=0.01)
+        assert action.antennas[1] == pytest.approx(math.radians(-180), abs=0.01)
 
     def test_antenna_left_modifier(self):
         """Test 'antenna left left' moves the LEFT antenna (index 1)."""
@@ -319,7 +319,7 @@ antenna left left"""
         assert result.success
         action = result.ir[0]
         # antennas is [right, left]; the left modifier targets index 1
-        assert action.antennas[1] == pytest.approx(math.radians(-90), abs=0.01)
+        assert action.antennas[1] == pytest.approx(math.radians(90), abs=0.01)
         # the right antenna is not commanded -> left in place (None)
         assert action.antennas[0] is None
 
@@ -332,7 +332,7 @@ antenna right right"""
         assert result.success
         action = result.ir[0]
         # antennas is [right, left]; the right modifier targets index 0
-        assert action.antennas[0] == pytest.approx(math.radians(90), abs=0.01)
+        assert action.antennas[0] == pytest.approx(math.radians(-90), abs=0.01)
         # the left antenna is not commanded -> left in place (None)
         assert action.antennas[1] is None
 
@@ -344,8 +344,8 @@ antenna both 3"""
 
         assert result.success
         action = result.ir[0]
-        assert action.antennas[0] == pytest.approx(math.radians(90), abs=0.01)
-        assert action.antennas[1] == pytest.approx(math.radians(90), abs=0.01)
+        assert action.antennas[0] == pytest.approx(math.radians(-90), abs=0.01)
+        assert action.antennas[1] == pytest.approx(math.radians(-90), abs=0.01)
 
     def test_antenna_clock_keyword(self):
         """Test antenna with clock keyword (ext/int/high/low)."""
@@ -355,8 +355,8 @@ antenna both ext"""
 
         assert result.success
         action = result.ir[0]
-        assert action.antennas[0] == pytest.approx(math.radians(90), abs=0.01)
-        assert action.antennas[1] == pytest.approx(math.radians(90), abs=0.01)
+        assert action.antennas[0] == pytest.approx(math.radians(-90), abs=0.01)
+        assert action.antennas[1] == pytest.approx(math.radians(-90), abs=0.01)
 
 
 class TestQualitativeStrengths:

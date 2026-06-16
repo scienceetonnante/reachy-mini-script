@@ -546,8 +546,12 @@ class SemanticAnalyzer:
             )
 
         if has_antenna_movement:
+            # rmscript's clock convention (3 o'clock = +90°) is the mirror of
+            # the motors' positive rotation direction, so negate to match the
+            # SDK/hardware sign. Without this both antennas point opposite to
+            # the requested direction (e.g. "antenna left left" pointed right).
             result.antennas = [
-                np.deg2rad(a) if a is not None else None for a in antennas
+                -np.deg2rad(a) if a is not None else None for a in antennas
             ]
 
         if has_body_yaw:
