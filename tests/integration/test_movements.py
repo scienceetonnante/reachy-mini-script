@@ -223,7 +223,8 @@ tilt left"""
         assert result.success
         rotation = R.from_matrix(result.ir[0].head_pose[:3, :3])
         roll, _, _ = rotation.as_euler("xyz", degrees=True)
-        assert roll == pytest.approx(DEFAULT_ANGLE, abs=0.1)
+        # LEFT tilt = negative roll (top of head leans to the robot's left)
+        assert roll == pytest.approx(-DEFAULT_ANGLE, abs=0.1)
 
     def test_tilt_right(self):
         """Test 'tilt right' command."""
@@ -234,7 +235,8 @@ tilt right"""
         assert result.success
         rotation = R.from_matrix(result.ir[0].head_pose[:3, :3])
         roll, _, _ = rotation.as_euler("xyz", degrees=True)
-        assert roll == pytest.approx(-DEFAULT_ANGLE, abs=0.1)
+        # RIGHT tilt = positive roll (top of head leans to the robot's right)
+        assert roll == pytest.approx(DEFAULT_ANGLE, abs=0.1)
 
     def test_tilt_center(self):
         """Test 'tilt center' command resets roll."""
@@ -256,7 +258,8 @@ tilt left maximum"""
         assert result.success
         rotation = R.from_matrix(result.ir[0].head_pose[:3, :3])
         roll, _, _ = rotation.as_euler("xyz", degrees=True)
-        assert roll == pytest.approx(HEAD_PITCH_ROLL_VERY_LARGE, abs=0.1)
+        # tilt left = negative roll; magnitude clamped to the pitch/roll limit
+        assert roll == pytest.approx(-HEAD_PITCH_ROLL_VERY_LARGE, abs=0.1)
 
 
 class TestAntennaControl:
@@ -308,24 +311,30 @@ antenna both down"""
         assert action.antennas[1] == pytest.approx(math.radians(180), abs=0.01)
 
     def test_antenna_left_modifier(self):
-        """Test 'antenna left left' (left antenna pointing left)."""
+        """Test 'antenna left left' moves the LEFT antenna (index 1)."""
         source = """"test"
 antenna left left"""
         result = compile_script(source)
 
         assert result.success
         action = result.ir[0]
-        assert action.antennas[0] == pytest.approx(math.radians(-90), abs=0.01)
+        # antennas is [right, left]; the left modifier targets index 1
+        assert action.antennas[1] == pytest.approx(math.radians(-90), abs=0.01)
+        # the right antenna is not commanded -> left in place (None)
+        assert action.antennas[0] is None
 
     def test_antenna_right_modifier(self):
-        """Test 'antenna right right' (right antenna pointing right)."""
+        """Test 'antenna right right' moves the RIGHT antenna (index 0)."""
         source = """"test"
 antenna right right"""
         result = compile_script(source)
 
         assert result.success
         action = result.ir[0]
-        assert action.antennas[1] == pytest.approx(math.radians(90), abs=0.01)
+        # antennas is [right, left]; the right modifier targets index 0
+        assert action.antennas[0] == pytest.approx(math.radians(90), abs=0.01)
+        # the left antenna is not commanded -> left in place (None)
+        assert action.antennas[1] is None
 
     def test_antenna_clock_numeric(self):
         """Test antenna with numeric clock position."""

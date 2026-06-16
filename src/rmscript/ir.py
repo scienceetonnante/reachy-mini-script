@@ -27,7 +27,10 @@ class IRAction:
     """Resolved action - all defaults applied, ready to execute."""
 
     head_pose: Optional[npt.NDArray[np.float64]] = None  # 4x4 matrix
-    antennas: Optional[List[float]] = None  # [right, left] in radians
+    # [right, left] in radians. A per-element value of None means "leave that
+    # antenna where it is" (e.g. a single-antenna command); execution adapters
+    # should fill None entries from the current antenna position.
+    antennas: Optional[List[Optional[float]]] = None
     body_yaw: Optional[float] = None  # radians
     duration: float = 1.0
     interpolation: str = "minjerk"

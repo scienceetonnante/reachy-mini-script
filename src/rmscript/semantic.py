@@ -425,7 +425,8 @@ class SemanticAnalyzer:
         head_pose_params = {"x": 0.0, "y": 0.0, "z": 0.0, "roll": 0.0, "pitch": 0.0, "yaw": 0.0}
         has_head_movement = False
 
-        antennas = [0.0, 0.0]  # [right, left]
+        # [right, left]; None means "not commanded -> leave that antenna in place"
+        antennas: list[float | None] = [None, None]
         has_antenna_movement = False
 
         body_yaw = 0.0
@@ -482,23 +483,24 @@ class SemanticAnalyzer:
                 if action.direction in CENTER_SYNONYMS:
                     head_pose_params["roll"] = 0.0
                 elif action.direction == "left":
-                    head_pose_params["roll"] += action.strength
+                    head_pose_params["roll"] -= action.strength  # LEFT = negative roll
                 elif action.direction == "right":
-                    head_pose_params["roll"] -= action.strength
+                    head_pose_params["roll"] += action.strength  # RIGHT = positive roll
 
             elif action.keyword == "antenna":
                 has_antenna_movement = True
 
-                # Determine which antenna(s) to move
-                # Note: antennas array is [left_antenna, right_antenna]
+                # Determine which antenna(s) to move.
+                # The antennas array is [right, left] (index 0 = right antenna,
+                # index 1 = left antenna), matching the SDK set_target/protocol order.
                 if action.antenna_modifier == "both":
-                    left_idx, right_idx = 0, 1
+                    right_idx, left_idx = 0, 1
                 elif action.antenna_modifier == "right":
-                    left_idx, right_idx = None, 1
+                    right_idx, left_idx = 0, None
                 elif action.antenna_modifier == "left":
-                    left_idx, right_idx = 0, None
+                    right_idx, left_idx = None, 1
                 else:
-                    left_idx, right_idx = 0, 1  # default to both
+                    right_idx, left_idx = 0, 1  # default to both
 
                 # Convert clock position to angle
                 # If direction is "clock", the clock position is stored in strength
@@ -544,7 +546,9 @@ class SemanticAnalyzer:
             )
 
         if has_antenna_movement:
-            result.antennas = [np.deg2rad(antennas[0]), np.deg2rad(antennas[1])]
+            result.antennas = [
+                np.deg2rad(a) if a is not None else None for a in antennas
+            ]
 
         if has_body_yaw:
             result.body_yaw = np.deg2rad(body_yaw)
