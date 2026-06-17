@@ -578,6 +578,95 @@ body right 70 and look right 20"""
         assert yaw == pytest.approx(-90.0, abs=0.1)
 
 
+class TestBodyKeepsLookOffset:
+    """`body` after `look` must keep the head's look offset (regression).
+
+    Mirror of `TestLookRelativeToBody`: a body-only move should rotate the body
+    and carry the head's existing look offset with it, not reset the head to the
+    body axis.
+    """
+
+    def test_body_after_look_keeps_offset(self):
+        """'look left 60' then 'body left 30' => head 90° world, offset preserved."""
+        source = """"test"
+look left 60
+body left 30"""
+        result = compile_script(source)
+
+        assert result.success
+        body_action = result.ir[1]
+        assert body_action.body_yaw == pytest.approx(math.radians(30.0), abs=0.01)
+
+        rotation = R.from_matrix(body_action.head_pose[:3, :3])
+        _, _, yaw = rotation.as_euler("xyz", degrees=True)
+        # body 30 + retained look 60 => 90° world
+        assert yaw == pytest.approx(90.0, abs=0.1)
+        # realized head/body differential is still the intended 60°
+        assert yaw - math.degrees(body_action.body_yaw) == pytest.approx(60.0, abs=0.1)
+
+    def test_body_after_look_across_wait(self):
+        """The original bug report case: offset survives across lines and a wait."""
+        source = """"test"
+look left 60 and body left 90
+wait 1s
+body left 10"""
+        result = compile_script(source)
+
+        assert result.success
+        last = [a for a in result.ir if isinstance(a, IRAction)][-1]
+        assert last.body_yaw == pytest.approx(math.radians(10.0), abs=0.01)
+
+        rotation = R.from_matrix(last.head_pose[:3, :3])
+        _, _, yaw = rotation.as_euler("xyz", degrees=True)
+        # body 10 + retained look 60 => 70° world (was wrongly 10° before the fix)
+        assert yaw == pytest.approx(70.0, abs=0.1)
+
+    def test_body_center_keeps_look_offset(self):
+        """'body center' faces the body forward but keeps the current look."""
+        source = """"test"
+look left 40
+body center"""
+        result = compile_script(source)
+
+        assert result.success
+        body_action = result.ir[1]
+        assert body_action.body_yaw == pytest.approx(0.0, abs=0.01)
+        rotation = R.from_matrix(body_action.head_pose[:3, :3])
+        _, _, yaw = rotation.as_euler("xyz", degrees=True)
+        assert yaw == pytest.approx(40.0, abs=0.1)
+
+    def test_body_rotates_head_translation_offset(self):
+        """A `head` translation offset is carried through a later `body` rotation."""
+        source = """"test"
+head forward 10
+body left 90"""
+        result = compile_script(source)
+
+        assert result.success
+        body_action = result.ir[1]
+        # forward (+x, body frame) rotated 90° left maps to +y in the world frame
+        assert body_action.head_pose[0, 3] == pytest.approx(0.0, abs=1e-4)
+        assert body_action.head_pose[1, 3] == pytest.approx(0.010, abs=1e-4)
+
+    def test_look_after_look_stays_absolute(self):
+        """Head commands remain absolute per line (minimal-scope guard).
+
+        `look up` after `look left` rebuilds the head from neutral, so the prior
+        yaw is not retained (only `body` preserves the offset).
+        """
+        source = """"test"
+look left 60
+look up 30"""
+        result = compile_script(source)
+
+        assert result.success
+        second = result.ir[1]
+        rotation = R.from_matrix(second.head_pose[:3, :3])
+        _, pitch, yaw = rotation.as_euler("xyz", degrees=True)
+        assert yaw == pytest.approx(0.0, abs=0.1)
+        assert pitch == pytest.approx(-30.0, abs=0.1)
+
+
 class TestReset:
     """Test the 'reset' keyword (neutral base pose on all DOFs)."""
 

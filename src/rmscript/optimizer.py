@@ -82,40 +82,60 @@ class Optimizer:
         """Express each head pose relative to the current body yaw axis.
 
         ``look`` (and ``tilt``/``head``) build their head pose from neutral,
-        implicitly assuming the body faces forward (body_yaw = 0). But the body
-        may have been rotated by a previous ``body``. To make a head movement
-        relative to *that* axis - and to keep ``look`` from ever driving the
-        body yaw motor - we walk the IR in order, track the running body yaw,
-        and compose each body-less head pose with it:
+        relative to the body axis (body_yaw = 0). ``body`` only sets the body
+        yaw. To express both in the world frame - and to keep the head's look
+        offset across body moves while never letting ``look`` drive the body
+        motor - we walk the IR in order and carry two pieces of running state:
 
-            world_pose = Rz(body_yaw) @ relative_pose
+        - ``body_yaw``: the current body yaw, updated by ``body`` lines.
+        - ``rel_head``: the head pose relative to the body axis (its look / tilt
+          / translation offset), updated by head lines.
 
-        We also pin ``body_yaw`` on those actions to the current value so the
-        kinematics solve the intended head/body differential without moving the
-        body. This composition is exact because yaw is the outermost rotation in
-        ``create_head_pose`` (Rz . Ry . Rx), so it simply adds to the head yaw
-        while correctly rotating pitch/roll/translation.
+        Each line that moves the carriage (body and/or head) re-emits the head
+        pose composed into the world frame and pins the body yaw::
 
-        ``body`` actions already write their yaw into the head pose (head follows
-        body), so their head pose is already world-frame and is left untouched;
-        they only update the tracked body yaw. Body yaw is statically known here
-        because ``repeat`` blocks are fully expanded before optimization and the
-        language has no conditionals or randomness.
+            world_pose = Rz(body_yaw) @ rel_head
+
+        This makes the two interactions symmetric:
+
+        - ``look`` after ``body`` keeps the body yaw and offsets the head
+          relative to it.
+        - ``body`` after ``look`` keeps the head's look offset and rotates it
+          with the new body yaw (this is the case that used to reset the look).
+
+        Head commands stay absolute per line: a head line replaces ``rel_head``
+        (rebuilt from neutral), so ``look up`` after ``look left`` does not keep
+        the previous yaw. The composition is exact because yaw is the outermost
+        rotation in ``create_head_pose`` (Rz . Ry . Rx), so it adds to the head
+        yaw while correctly rotating pitch/roll/translation. State is statically
+        known here because ``repeat`` blocks are fully expanded before
+        optimization and the language has no conditionals or randomness.
         """
         body_yaw = 0.0  # running body yaw, in radians (matches IR units)
+        rel_head = np.eye(4)  # running head pose relative to the body axis
 
         for action in ir:
             if not isinstance(action, IRAction):
                 continue
 
+            moved_carriage = False
+
             if action.body_yaw is not None:
-                # A `body` (possibly combined with `look` on the same line).
-                # Its head pose is already world-frame; just track the body yaw.
+                # A `body` move: update the tracked body yaw, keep the look offset.
                 body_yaw = action.body_yaw
-            elif action.head_pose is not None:
-                # A body-less head movement: compose with the current body yaw
-                # and pin the body so `look` never spills into the body motor.
-                action.head_pose = _rot_z(body_yaw) @ action.head_pose
+                moved_carriage = True
+
+            if action.head_pose is not None:
+                # A head move (`look`/`tilt`/`head`): its pose is body-relative
+                # and rebuilt from neutral, so it replaces the running offset.
+                rel_head = action.head_pose
+                moved_carriage = True
+
+            if moved_carriage:
+                # Re-emit in the world frame and pin the body so the kinematics
+                # solve the intended head/body differential. Antenna-only (and
+                # non-movement) actions don't move the carriage and are untouched.
+                action.head_pose = _rot_z(body_yaw) @ rel_head
                 action.body_yaw = body_yaw
 
         return ir

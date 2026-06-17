@@ -502,16 +502,16 @@ class SemanticAnalyzer:
         for action in actions:
             if action.keyword == "body":
                 has_body_yaw = True
-                has_head_movement = True  # Head rotates with body
+                # `body` only sets the body yaw. The head's relative pose (look /
+                # tilt / translation offset) is kept across body moves and rotated
+                # into the world frame by the optimizer, so the head follows the
+                # body without losing its look offset.
                 if action.direction in CENTER_SYNONYMS:
                     body_yaw = 0.0
-                    head_pose_params["yaw"] = 0.0
                 elif action.direction == "left":
                     body_yaw += action.strength  # LEFT = positive yaw
-                    head_pose_params["yaw"] += action.strength  # Head follows body
                 elif action.direction == "right":
                     body_yaw -= action.strength  # RIGHT = negative yaw
-                    head_pose_params["yaw"] -= action.strength  # Head follows body
 
             elif action.keyword == "look":
                 has_head_movement = True

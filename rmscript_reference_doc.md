@@ -135,6 +135,11 @@ body center       # Face forward
 
 **Note:** The `body` command rotates both the body yaw and the head yaw together, since the body carries the head.
 
+The head's `look` offset is **kept** across body moves: if the head is looking
+60° left and you then `body left 10`, the head stays 60° left of the body (70°
+in the world), it does not snap back to the body axis. `look` commands, by
+contrast, are absolute per line — `look up` after `look left` resets the yaw.
+
 **Physical Limits:**
 - Body yaw: ±160° (safe limit: ±120°)
 
