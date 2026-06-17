@@ -138,8 +138,7 @@ look right"""
         keyword_tokens = [
             t
             for t in tokens
-            if t.type
-            in (TokenType.KEYWORD_LOOK, TokenType.KEYWORD_TURN, TokenType.KEYWORD_ANTENNA)
+            if t.type in (TokenType.KEYWORD_LOOK, TokenType.KEYWORD_TURN, TokenType.KEYWORD_ANTENNA)
         ]
         assert len(keyword_tokens) == 7
 
@@ -180,11 +179,7 @@ look right"""
         tokens = lexer(source).tokenize()
 
         # Find the three keywords
-        keywords = [
-            t
-            for t in tokens
-            if t.type in (TokenType.KEYWORD_LOOK, TokenType.KEYWORD_WAIT)
-        ]
+        keywords = [t for t in tokens if t.type in (TokenType.KEYWORD_LOOK, TokenType.KEYWORD_WAIT)]
 
         assert keywords[0].line == 1  # look
         assert keywords[1].line == 2  # wait

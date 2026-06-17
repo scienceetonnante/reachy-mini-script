@@ -63,7 +63,7 @@ SMALL_KEYWORDS: List[str] = ["little", "slightly", "small", "alittle"]
 MEDIUM_KEYWORDS: List[str] = ["medium", "normal", "regular", "standard", "normally"]
 LARGE_KEYWORDS: List[str] = ["lot", "big", "large", "very", "alot", "huge", "strong", "strongly"]
 VERY_SMALL_KEYWORDS: List[str] = ["minuscule", "mini", "verysmall", "tiny", "minimum"]
-VERY_LARGE_KEYWORDS: List[str] = ["verybig", "enormous","verylarge","maximum", "maxi", "max"]
+VERY_LARGE_KEYWORDS: List[str] = ["verybig", "enormous", "verylarge", "maximum", "maxi", "max"]
 
 # Direction Synonyms
 CENTER_SYNONYMS: List[str] = ["center", "straight", "neutral", "centre", "middle", "zero"]
@@ -73,9 +73,14 @@ FORWARD_SYNONYMS: List[str] = ["forward"]
 BACKWARD_SYNONYMS: List[str] = ["back", "backward", "backwards"]
 
 # All valid directions (used by lexer for tokenization)
-ALL_DIRECTIONS: List[str] = [
-    "left", "right", "up", "down", "both"
-] + CENTER_SYNONYMS + INWARD_SYNONYMS + OUTWARD_SYNONYMS + FORWARD_SYNONYMS + BACKWARD_SYNONYMS
+ALL_DIRECTIONS: List[str] = (
+    ["left", "right", "up", "down", "both"]
+    + CENTER_SYNONYMS
+    + INWARD_SYNONYMS
+    + OUTWARD_SYNONYMS
+    + FORWARD_SYNONYMS
+    + BACKWARD_SYNONYMS
+)
 
 # Physical Limits (from robot constraints)
 MAX_BODY_YAW_DEG = 160.0  # degrees
@@ -119,17 +124,17 @@ ANTENNA_MODIFIERS: List[str] = ["left", "right", "both"]
 # Antenna clock system (NEW)
 ANTENNA_CLOCK_KEYWORDS: Dict[str, float] = {
     "high": 0.0,  # 0 o'clock = 0°
-    "ext": 3.0,   # 3 o'clock = +90° (external)
-    "low": 6.0,   # 6 o'clock = ±180°
-    "int": 9.0,   # 9 o'clock = -90° (internal)
+    "ext": 3.0,  # 3 o'clock = +90° (external)
+    "low": 6.0,  # 6 o'clock = ±180°
+    "int": 9.0,  # 9 o'clock = -90° (internal)
 }
 
 # Antenna directional keywords (map to clock positions)
 ANTENNA_DIRECTION_KEYWORDS: Dict[str, float] = {
-    "up": 0.0,     # Same as high: 0°
+    "up": 0.0,  # Same as high: 0°
     "right": 3.0,  # Same as ext: +90° (external/right)
-    "down": 6.0,   # Same as low: ±180°
-    "left": 9.0,   # Same as int: -90° (internal/left)
+    "down": 6.0,  # Same as low: ±180°
+    "left": 9.0,  # Same as int: -90° (internal/left)
 }
 
 # Direction Sign Conventions (for coordinate system)

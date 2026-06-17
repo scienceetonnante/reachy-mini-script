@@ -95,10 +95,12 @@ class Lexer:
 
         # Directions - import from constants
         from rmscript.constants import ALL_DIRECTIONS
+
         self.directions = set(ALL_DIRECTIONS)
 
         # Duration keywords - import from constants
         from rmscript.constants import DURATION_KEYWORDS
+
         self.duration_keywords = set(DURATION_KEYWORDS.keys())
 
         # Qualitative strength - import from constants
@@ -109,6 +111,7 @@ class Lexer:
             VERY_LARGE_KEYWORDS,
             VERY_SMALL_KEYWORDS,
         )
+
         self.qualitative_keywords = (
             set(SMALL_KEYWORDS)
             | set(MEDIUM_KEYWORDS)
@@ -122,6 +125,7 @@ class Lexer:
 
         # Sound blocking keywords (for "play sound pause/fully")
         from rmscript.constants import SOUND_BLOCKING_KEYWORDS
+
         self.sound_blocking_keywords = set(SOUND_BLOCKING_KEYWORDS)
 
     def error(self, message: str) -> Exception:

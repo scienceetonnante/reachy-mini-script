@@ -54,9 +54,7 @@ class RMScriptCompiler:
             result.warnings.extend(analyzer.warnings)
 
             if result.errors:
-                self.logger.error(
-                    f"Compilation failed with {len(result.errors)} error(s)"
-                )
+                self.logger.error(f"Compilation failed with {len(result.errors)} error(s)")
                 result.success = False
                 return result
 
@@ -68,9 +66,7 @@ class RMScriptCompiler:
             optimized_ir = optimizer.optimize(ir)
 
             result.ir = optimized_ir
-            self.logger.debug(
-                f"Optimized to {len(optimized_ir)} actions (from {len(ir)})"
-            )
+            self.logger.debug(f"Optimized to {len(optimized_ir)} actions (from {len(ir)})")
 
             # Compilation successful
             result.success = True
@@ -79,17 +75,13 @@ class RMScriptCompiler:
 
             # Print warnings if any
             if result.warnings:
-                self.logger.warning(
-                    f"Compilation succeeded with {len(result.warnings)} warning(s)"
-                )
+                self.logger.warning(f"Compilation succeeded with {len(result.warnings)} warning(s)")
 
         except ParseError as e:
             # Parser error
             result.success = False
             result.errors.append(
-                CompilationError(
-                    line=e.token.line, column=e.token.column, message=e.message
-                )
+                CompilationError(line=e.token.line, column=e.token.column, message=e.message)
             )
             self.logger.error(f"Parse error: {e}")
 
@@ -102,9 +94,7 @@ class RMScriptCompiler:
         except Exception as e:
             # Unexpected error
             result.success = False
-            result.errors.append(
-                CompilationError(line=0, column=0, message=f"Internal error: {e}")
-            )
+            result.errors.append(CompilationError(line=0, column=0, message=f"Internal error: {e}"))
             self.logger.exception("Unexpected error during compilation")
 
         return result
@@ -138,18 +128,14 @@ class RMScriptCompiler:
             result = CompilationResult(name="", description="", source_code="")
             result.success = False
             result.errors.append(
-                CompilationError(
-                    line=0, column=0, message=f"File not found: {filepath}"
-                )
+                CompilationError(line=0, column=0, message=f"File not found: {filepath}")
             )
             return result
         except Exception as e:
             result = CompilationResult(name="", description="", source_code="")
             result.success = False
             result.errors.append(
-                CompilationError(
-                    line=0, column=0, message=f"Error reading file: {e}"
-                )
+                CompilationError(line=0, column=0, message=f"Error reading file: {e}")
             )
             return result
 

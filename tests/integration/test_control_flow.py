@@ -261,7 +261,6 @@ class TestCaseInsensitivity:
         result1 = compile_script('"test"\nplay MySound')
         result2 = compile_script('"test"\nplay mysound')
 
-
         assert result1.ir[0].sound_name == "MySound"
         assert result2.ir[0].sound_name == "mysound"
         assert result1.ir[0].sound_name != result2.ir[0].sound_name

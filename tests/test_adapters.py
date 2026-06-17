@@ -15,9 +15,7 @@ class TestExecutionContext:
 
     def test_execution_context_creation(self):
         """Test creating basic execution context."""
-        context = ExecutionContext(
-            script_name="test_script", script_description="Test description"
-        )
+        context = ExecutionContext(script_name="test_script", script_description="Test description")
 
         assert context.script_name == "test_script"
         assert context.script_description == "Test description"
@@ -108,9 +106,7 @@ picture"""
 
         # Execute with adapter
         adapter = CountingAdapter()
-        context = ExecutionContext(
-            script_name=result.name, script_description=result.description
-        )
+        context = ExecutionContext(script_name=result.name, script_description=result.description)
         counts = adapter.execute(result.ir, context)
 
         assert counts["movements"] == 1

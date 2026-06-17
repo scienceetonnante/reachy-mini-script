@@ -69,9 +69,7 @@ class Parser:
         """Consume token of expected type or raise error."""
         token = self.current()
         if token.type != token_type:
-            raise self.error(
-                f"Expected {token_type.name}, got {token.type.name} ({token.value!r})"
-            )
+            raise self.error(f"Expected {token_type.name}, got {token.type.name} ({token.value!r})")
         return self.advance()
 
     def skip_newlines(self) -> None:
@@ -320,16 +318,12 @@ class Parser:
             self.advance()  # consume 'and'
 
             # Check if next token is a keyword
-            next_action = self.parse_single_action(
-                previous_keyword=first_action.keyword
-            )
+            next_action = self.parse_single_action(previous_keyword=first_action.keyword)
             chain.actions.append(next_action)
 
         return chain
 
-    def parse_single_action(
-        self, previous_keyword: Optional[str] = None
-    ) -> SingleAction:
+    def parse_single_action(self, previous_keyword: Optional[str] = None) -> SingleAction:
         """Parse a single action.
 
         Args:

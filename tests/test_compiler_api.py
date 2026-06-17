@@ -108,14 +108,14 @@ class TestCompileFile:
 
     def test_compile_file_with_complex_script(self, tmp_path):
         """Test compiling complex script from file."""
-        script_content = '''"Complex behavior"
+        script_content = """"Complex behavior"
 repeat 2
     look left
     wait 0.5s
     look right
     wait 0.5s
 antenna both up
-picture'''
+picture"""
         script_file = tmp_path / "complex.rmscript"
         script_file.write_text(script_content)
 
@@ -186,13 +186,13 @@ class TestVerifyScript:
 
     def test_verify_complex_valid_script(self):
         """Test verify_script with complex valid script."""
-        script = '''"test"
+        script = """"test"
 repeat 3
     look left
     wait 0.5s
     look right
 antenna both up
-picture'''
+picture"""
         is_valid, messages = verify_script(script)
 
         assert is_valid
@@ -200,10 +200,10 @@ picture'''
 
     def test_verify_multiple_errors(self):
         """Test verify_script returns first error (parser stops at first parse error)."""
-        script = '''"test"
+        script = """"test"
 jump up
 fly high
-teleport center'''
+teleport center"""
         is_valid, messages = verify_script(script)
 
         assert not is_valid
@@ -264,10 +264,10 @@ class TestCompilerAPIIntegration:
 
     def test_compile_script_and_file_equivalence(self, tmp_path):
         """Test compile_script and compile_file produce equivalent IR."""
-        content = '''"test"
+        content = """"test"
 look left
 antenna both up
-wait 1s'''
+wait 1s"""
         script_file = tmp_path / "test.rmscript"
         script_file.write_text(content)
 

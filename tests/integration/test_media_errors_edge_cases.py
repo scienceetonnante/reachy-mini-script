@@ -288,9 +288,7 @@ repeat 2
 
         # Should either succeed or have clear error about indentation
         if not result.success:
-            assert any(
-                "indent" in err.message.lower() for err in result.errors
-            )
+            assert any("indent" in err.message.lower() for err in result.errors)
 
     def test_decimal_repeat_count_error(self):
         """Test that decimal repeat counts produce error."""

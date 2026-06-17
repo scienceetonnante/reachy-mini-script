@@ -67,9 +67,7 @@ class TestTypeDefinitions:
         assert len(ir_list) == 4
         # Can iterate and check types
         for action in ir_list:
-            assert isinstance(
-                action, (IRAction, IRWaitAction, IRPictureAction, IRPlaySoundAction)
-            )
+            assert isinstance(action, (IRAction, IRWaitAction, IRPictureAction, IRPlaySoundAction))
 
 
 if __name__ == "__main__":
