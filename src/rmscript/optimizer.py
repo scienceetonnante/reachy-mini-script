@@ -83,10 +83,10 @@ class Optimizer:
 
         ``look`` (and ``tilt``/``head``) build their head pose from neutral,
         implicitly assuming the body faces forward (body_yaw = 0). But the body
-        may have been rotated by a previous ``turn``. To make a head movement
+        may have been rotated by a previous ``body``. To make a head movement
         relative to *that* axis - and to keep ``look`` from ever driving the
         body yaw motor - we walk the IR in order, track the running body yaw,
-        and compose each turn-less head pose with it:
+        and compose each body-less head pose with it:
 
             world_pose = Rz(body_yaw) @ relative_pose
 
@@ -96,7 +96,7 @@ class Optimizer:
         ``create_head_pose`` (Rz . Ry . Rx), so it simply adds to the head yaw
         while correctly rotating pitch/roll/translation.
 
-        ``turn`` actions already write their yaw into the head pose (head follows
+        ``body`` actions already write their yaw into the head pose (head follows
         body), so their head pose is already world-frame and is left untouched;
         they only update the tracked body yaw. Body yaw is statically known here
         because ``repeat`` blocks are fully expanded before optimization and the
@@ -109,11 +109,11 @@ class Optimizer:
                 continue
 
             if action.body_yaw is not None:
-                # A `turn` (possibly combined with `look` on the same line).
+                # A `body` (possibly combined with `look` on the same line).
                 # Its head pose is already world-frame; just track the body yaw.
                 body_yaw = action.body_yaw
             elif action.head_pose is not None:
-                # A turn-less head movement: compose with the current body yaw
+                # A body-less head movement: compose with the current body yaw
                 # and pin the body so `look` never spills into the body motor.
                 action.head_pose = _rot_z(body_yaw) @ action.head_pose
                 action.body_yaw = body_yaw

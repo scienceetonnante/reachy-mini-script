@@ -3,14 +3,14 @@
 from typing import Dict, List
 
 # Default Strengths
-DEFAULT_ANGLE = 30  # degrees (for turn, look, tilt)
+DEFAULT_ANGLE = 30  # degrees (for body, look, tilt)
 DEFAULT_DISTANCE = 10  # mm (for head translation)
 DEFAULT_ANTENNA_ANGLE = 45  # degrees
 
 # Qualitative Strength Mappings - Context-Aware
 # Different movement types have different physical limits
 
-# For BODY YAW (turn command) - can handle larger angles
+# For BODY YAW (body command) - can handle larger angles
 BODY_YAW_VERY_SMALL = 10  # degrees
 BODY_YAW_SMALL = 30  # degrees
 BODY_YAW_MEDIUM = 60  # degrees
@@ -98,7 +98,7 @@ MAX_ANTENNA_ANGLE_DEG = 180.0  # degrees
 SAFE_ANTENNA_ANGLE_DEG = 120.0  # recommended maximum for safety
 
 # Movement Keywords
-MOVEMENT_KEYWORDS: List[str] = ["turn", "look", "head", "tilt", "antenna"]
+MOVEMENT_KEYWORDS: List[str] = ["body", "look", "head", "tilt", "antenna"]
 
 # Control Keywords
 CONTROL_KEYWORDS: List[str] = ["wait", "repeat", "end", "play", "loop", "picture"]
@@ -107,7 +107,7 @@ CONTROL_KEYWORDS: List[str] = ["wait", "repeat", "end", "play", "loop", "picture
 SOUND_BLOCKING_KEYWORDS: List[str] = ["pause", "fully", "wait", "block", "complete"]
 
 # Valid Directions per Keyword
-TURN_DIRECTIONS: List[str] = ["left", "right"] + CENTER_SYNONYMS
+BODY_DIRECTIONS: List[str] = ["left", "right"] + CENTER_SYNONYMS
 LOOK_DIRECTIONS: List[str] = ["left", "right", "up", "down"] + CENTER_SYNONYMS
 HEAD_DIRECTIONS: List[str] = (
     ["forward", "left", "right", "up", "down"]

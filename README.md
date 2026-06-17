@@ -40,7 +40,7 @@ else:
 
 ## Language Features
 
-- **Intuitive syntax**: `look left`, `turn right`, `antenna up`
+- **Intuitive syntax**: `look left`, `body right`, `antenna up`
 - **Time control**: `wait 2s`, `slow`, `fast`
 - **Qualitative strengths**: `little`, `medium`, `lot`, `maximum`
 - **Compound movements**: `look left and up`
@@ -214,7 +214,7 @@ else:
 **Invalid directions:**
 ```python
 # ❌ Error
-"turn up"  # 'up' not valid for 'turn' (only left/right/center)
+"body up"  # 'up' not valid for 'body' (only left/right/center)
 
 # ✅ Correct
 "look up"  # 'up' valid for 'look'

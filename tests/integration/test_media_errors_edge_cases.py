@@ -142,11 +142,11 @@ jump up"""
     def test_error_invalid_direction_for_command(self):
         """Test error for invalid direction with specific command."""
         source = """"test"
-turn up"""
+body up"""
         result = compile_script(source)
 
         assert not result.success
-        assert any("turn" in err.message.lower() for err in result.errors)
+        assert any("body" in err.message.lower() for err in result.errors)
         assert any(
             "up" in err.message.lower() or "direction" in err.message.lower()
             for err in result.errors
@@ -193,7 +193,7 @@ play"""
     def test_warning_out_of_range_clear_message(self):
         """Test that out-of-range values produce clear warnings."""
         source = """"test"
-turn left 200"""
+body left 200"""
         result = compile_script(source)
 
         assert result.success  # Compiles successfully
@@ -314,7 +314,7 @@ repeat -1
         source = """"test"
 look left
 jump up
-turn right"""
+body right"""
         result = compile_script(source)
 
         assert not result.success

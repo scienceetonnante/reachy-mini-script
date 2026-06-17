@@ -50,16 +50,16 @@ wait 1s
 # Valid: with description
 "My robot dance"
 look left
-turn right
+body right
 
 # Valid: without description (uses default)
 look left
-turn right
+body right
 
 # Invalid: misplaced description
 look left
 "This will cause an error"
-turn right
+body right
 ```
 
 ### Basic Commands
@@ -69,7 +69,7 @@ turn right
 
 # Movement commands
 look left
-turn right
+body right
 antenna up
 head forward 10
 
@@ -101,8 +101,8 @@ WAIT 1s      # Same as "wait 1s"
 
 Control the robot's head orientation (pitch and yaw). `look` only moves the
 **head**, relative to the body's current facing direction — it never drives the
-body yaw motor. So after a `turn`, a `look` is measured from the turned body
-axis (e.g. `turn right 70` then `look right 20` ends up 90° right in the world).
+body yaw motor. So after a `body`, a `look` is measured from the rotated body
+axis (e.g. `body right 70` then `look right 20` ends up 90° right in the world).
 
 ```rmscript
 look left          # Turn head left (30° default)
@@ -120,17 +120,17 @@ look neutral      # Same as center
 - Pitch (up/down): ±40°
 - Yaw (left/right): ±65° relative to the body axis (e.g. `look right 80` → 65°)
 
-### Turn (Body Rotation)
+### Body (Body Rotation)
 
 Rotate the robot's body (the head rotates together with the body):
 
 ```rmscript
-turn left         # Rotate body and head left (30° default)
-turn right 90     # Rotate body and head right 90°
-turn center       # Face forward
+body left         # Rotate body and head left (30° default)
+body right 90     # Rotate body and head right 90°
+body center       # Face forward
 ```
 
-**Note:** The `turn` command rotates both the body yaw and the head yaw together, since the body carries the head.
+**Note:** The `body` command rotates both the body yaw and the head yaw together, since the body carries the head.
 
 **Physical Limits:**
 - Body yaw: ±160° (safe limit: ±120°)
@@ -240,11 +240,11 @@ The picture command captures a frame from the camera and returns it as a base64-
 **Single picture (LLM-compatible):**
 ```rmscript
 "Check behind by taking a picture"
-turn left maximum
+body left maximum
 wait 0.5s
 picture
 wait 0.5s
-turn center
+body center
 ```
 
 This script:
@@ -366,8 +366,8 @@ look left and up 25
 # → Merged into single command
 
 # Different keywords - no reuse
-turn left and look right
-# → turn left + look right
+body left and look right
+# → body left + look right
 # → Two separate commands merged
 ```
 
@@ -381,11 +381,11 @@ Use descriptive words instead of numbers - works for both angles and distances:
 # 5 levels of strength - values are context-aware!
 
 # Examples:
-turn left tiny          # 10° (body yaw can handle larger movements)
+body left tiny          # 10° (body yaw can handle larger movements)
 look up tiny            # 5° (head pitch limited by cone constraint)
 head forward tiny       # 2mm
 
-turn left maximum       # 120° (body yaw safe maximum)
+body left maximum       # 120° (body yaw safe maximum)
 look up maximum         # 38° (respects ±40° pitch limit)
 look left maximum       # 60° (respects ±65° body-head differential)
 head forward maximum    # 28mm (under 30mm limit)
@@ -406,7 +406,7 @@ The same qualitative keyword maps to different values depending on the movement 
 
 | Keyword | VERY_SMALL | SMALL | MEDIUM | LARGE | VERY_LARGE |
 |---------|------------|-------|--------|-------|------------|
-| **Body Yaw (turn)** | 10° | 30° | 60° | 90° | 120° |
+| **Body Yaw (body)** | 10° | 30° | 60° | 90° | 120° |
 | **Head Pitch/Roll (look up/down, tilt)** | 5° | 10° | 20° | 30° | 38° |
 | **Head Yaw (look left/right)** | 5° | 15° | 30° | 45° | 60° |
 | **Head Translation (head forward/back/etc)** | 2mm | 5mm | 10mm | 20mm | 28mm |
@@ -429,7 +429,7 @@ look down superslow    # 3.0 seconds
 Combine with 'and':
 
 ```rmscript
-turn left and look right fast
+body left and look right fast
 # Both movements complete in 0.5 seconds
 ```
 
@@ -461,12 +461,12 @@ Combine multiple movements into a single smooth motion:
 
 ```rmscript
 # All happen simultaneously
-antenna both up and look up 25 and turn left 30
+antenna both up and look up 25 and body left 30
 ```
 
 This merges into a single `goto_target()` call with all parameters.
 
-**Important:** The `and` keyword can only combine movement commands (turn, look, head, tilt, antenna). 
+**Important:** The `and` keyword can only combine movement commands (body, look, head, tilt, antenna). 
 You **cannot** combine movements with control commands (picture, play, loop, wait) using `and`. Use separate lines instead:
 
 ```rmscript
@@ -479,10 +479,10 @@ wait 0.5s
 picture
 
 # ❌ ERROR - Cannot combine movement with play
-turn right and play mysound
+body right and play mysound
 
 # ✓ CORRECT - Use separate lines
-turn right
+body right
 play mysound
 ```
 
@@ -541,15 +541,15 @@ wait 1s
 # Main sequence
 repeat 2
     # Move left
-    turn left 30 and look right 20
+    body left 30 and look right 20
     wait 0.5s
 
     # Move right
-    turn right 30 and look left 20
+    body right 30 and look left 20
     wait 0.5s
 
 # Ending pose
-turn center and look center and antenna down
+body center and look center and antenna down
 ```
 
 ### Example 4: Using Qualitative Strength
@@ -595,9 +595,9 @@ jump up
 
 ```rmscript
 # Invalid direction for keyword
-turn up
+body up
 ```
-**Output:** `❌ Line 1: Invalid direction 'up' for keyword 'turn'`
+**Output:** `❌ Line 1: Invalid direction 'up' for keyword 'body'`
 
 ```rmscript
 # Missing indentation
@@ -612,7 +612,7 @@ Warnings allow compilation but alert to potential issues:
 
 ```rmscript
 # Exceeds safe range
-turn left 200
+body left 200
 ```
 **Output:** `⚠️  Line 1: Body yaw 200.0° exceeds limit (±160.0°), clamped to 160.0°`
 
@@ -710,11 +710,11 @@ antenna down
 ```rmscript
 # Start conservative
 look left 10
-turn right 15
+body right 15
 
 # Then increase if needed
 look left 45
-turn right 90
+body right 90
 ```
 
 ## Physical Safety Limits
@@ -723,7 +723,7 @@ rmscript validates all movements against these limits:
 
 | Movement | Limit | Enforcement |
 |----------|-------|------------------|
-| Body yaw (turn) | ±160° | Clamped |
+| Body yaw (body) | ±160° | Clamped |
 | Head yaw (look left/right) | ±65° relative to body | Clamped |
 | Head pitch (look up/down) | ±40° | Clamped |
 | Head roll (tilt) | ±40° | Clamped |
@@ -732,7 +732,7 @@ rmscript validates all movements against these limits:
 | Head Y (left/right) | ±50mm typical | Warning only |
 | Head Z (up/down) | +20mm / -30mm typical | Warning only |
 
-Rotation limits (turn / look / tilt) are **enforced at compile time**: an
+Rotation limits (body / look / tilt) are **enforced at compile time**: an
 out-of-range angle is clamped to the limit and a warning is emitted (e.g.
 `look right 80` compiles to a 65° head turn). Translations and antenna angles
 currently emit warnings only.
@@ -743,7 +743,7 @@ When values aren't specified:
 
 | Parameter | Default |
 |-----------|---------|
-| Angle (look, turn, tilt) | 30° |
+| Angle (look, body, tilt) | 30° |
 | Distance (head translation) | 10mm |
 | Antenna angle | 45° |
 | Duration | 1.0s |

@@ -49,7 +49,7 @@ class ActionChain(Statement):
 class SingleAction(ASTNode):
     """Single action (may be part of a chain)."""
 
-    keyword: str = ""  # turn, look, head, tilt, antenna
+    keyword: str = ""  # body, look, head, tilt, antenna
     direction: Optional[str] = None  # left, right, up, down, etc.
     antenna_modifier: Optional[str] = None  # left, right, both (for antenna only)
     strength: Optional[float] = None  # Numerical value (degrees or mm)

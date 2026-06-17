@@ -16,11 +16,11 @@ class TestLexer:
 
     def test_tokenize_keywords(self, lexer):
         """Test that all movement keywords are recognized."""
-        source = "turn look head tilt antenna wait picture play loop repeat end"
+        source = "body look head tilt antenna wait picture play loop repeat end"
         tokens = lexer(source).tokenize()
 
         expected_types = [
-            TokenType.KEYWORD_TURN,
+            TokenType.KEYWORD_BODY,
             TokenType.KEYWORD_LOOK,
             TokenType.KEYWORD_HEAD,
             TokenType.KEYWORD_TILT,
@@ -98,7 +98,7 @@ class TestLexer:
         source = """repeat 3
     look left
     look right
-turn center"""
+body center"""
         tokens = lexer(source).tokenize()
 
         # Find INDENT and DEDENT tokens
@@ -131,14 +131,14 @@ look right"""
 
     def test_case_insensitive_keywords(self, lexer):
         """Test that keywords are case-insensitive."""
-        source = "LOOK Look loOk TURN Turn ANTENNA Antenna"
+        source = "LOOK Look loOk BODY Body ANTENNA Antenna"
         tokens = lexer(source).tokenize()
 
         # All should be recognized as keywords
         keyword_tokens = [
             t
             for t in tokens
-            if t.type in (TokenType.KEYWORD_LOOK, TokenType.KEYWORD_TURN, TokenType.KEYWORD_ANTENNA)
+            if t.type in (TokenType.KEYWORD_LOOK, TokenType.KEYWORD_BODY, TokenType.KEYWORD_ANTENNA)
         ]
         assert len(keyword_tokens) == 7
 

@@ -24,7 +24,7 @@ look left"""
         """Test that simple action statements are parsed."""
         source = """"test"
 look left
-turn right"""
+body right"""
         lexer = Lexer(source)
         tokens = lexer.tokenize()
         parser = Parser(tokens)
@@ -33,13 +33,13 @@ turn right"""
         assert len(program.statements) == 2
         assert program.statements[0].actions[0].keyword == "look"
         assert program.statements[0].actions[0].direction == "left"
-        assert program.statements[1].actions[0].keyword == "turn"
+        assert program.statements[1].actions[0].keyword == "body"
         assert program.statements[1].actions[0].direction == "right"
 
     def test_parse_action_with_strength(self):
         """Test that actions with numeric strength are parsed."""
         source = """"test"
-turn left 45"""
+body left 45"""
         lexer = Lexer(source)
         tokens = lexer.tokenize()
         parser = Parser(tokens)
@@ -61,14 +61,14 @@ look up 2s"""
     def test_parse_compound_action_with_and(self):
         """Test that compound actions with 'and' are parsed."""
         source = """"test"
-turn left and look right"""
+body left and look right"""
         lexer = Lexer(source)
         tokens = lexer.tokenize()
         parser = Parser(tokens)
         program = parser.parse()
 
         assert len(program.statements[0].actions) == 2
-        assert program.statements[0].actions[0].keyword == "turn"
+        assert program.statements[0].actions[0].keyword == "body"
         assert program.statements[0].actions[1].keyword == "look"
 
     def test_parse_repeat_block(self):
@@ -168,7 +168,7 @@ repeat 2
     def test_parse_qualitative_strength(self):
         """Test parsing qualitative strength keywords."""
         source = """"test"
-turn left little"""
+body left little"""
         lexer = Lexer(source)
         tokens = lexer.tokenize()
         parser = Parser(tokens)
@@ -203,7 +203,7 @@ loop mysound 10s"""
     def test_parse_error_invalid_direction(self):
         """Test parse error for invalid direction."""
         source = """"test"
-turn up"""
+body up"""
         lexer = Lexer(source)
         tokens = lexer.tokenize()
         parser = Parser(tokens)
@@ -211,7 +211,7 @@ turn up"""
         with pytest.raises(ParseError) as excinfo:
             parser.parse()
 
-        assert "turn" in str(excinfo.value).lower()
+        assert "body" in str(excinfo.value).lower()
         assert "up" in str(excinfo.value).lower()
 
     def test_parse_error_missing_antenna_modifier(self):
@@ -230,7 +230,7 @@ antenna up"""
     def test_parse_without_description(self):
         """Test that script without description uses default."""
         source = """look left
-turn right"""
+body right"""
         lexer = Lexer(source)
         tokens = lexer.tokenize()
         parser = Parser(tokens)
@@ -243,7 +243,7 @@ turn right"""
         """Test that description string not on first line is an error."""
         source = """look left
 "This is misplaced"
-turn right"""
+body right"""
         lexer = Lexer(source)
         tokens = lexer.tokenize()
         parser = Parser(tokens)

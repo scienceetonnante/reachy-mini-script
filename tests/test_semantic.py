@@ -17,7 +17,7 @@ class TestSemanticAnalyzer:
     def test_apply_default_angle(self):
         """Test that default angle is applied when no strength specified."""
         source = """"test"
-turn left"""
+body left"""
         lexer = Lexer(source)
         tokens = lexer.tokenize()
         parser = Parser(tokens)
@@ -47,7 +47,7 @@ look up"""
     def test_qualitative_strength_context_aware(self):
         """Test that qualitative keywords map to context-appropriate values."""
         source = """"test"
-turn left maximum
+body left maximum
 look left maximum"""
         lexer = Lexer(source)
         tokens = lexer.tokenize()
@@ -58,7 +58,7 @@ look left maximum"""
         ir = analyzer.analyze(program)
 
         # Both use "maximum" but should have different values
-        # turn maximum -> larger body_yaw
+        # body maximum -> larger body_yaw
         # look maximum -> larger head yaw
         assert isinstance(ir[0], IRAction)
         assert isinstance(ir[1], IRAction)
@@ -155,7 +155,7 @@ head backward 10"""
     def test_action_merging(self):
         """Test that multiple actions in chain are merged."""
         source = """"test"
-turn left and look right"""
+body left and look right"""
         lexer = Lexer(source)
         tokens = lexer.tokenize()
         parser = Parser(tokens)
@@ -174,7 +174,7 @@ turn left and look right"""
     def test_warning_for_out_of_range(self):
         """Test that out-of-range values generate warnings."""
         source = """"test"
-turn left 200"""
+body left 200"""
         lexer = Lexer(source)
         tokens = lexer.tokenize()
         parser = Parser(tokens)
@@ -193,7 +193,7 @@ turn left 200"""
         # Note: negative repeat counts are now caught at parse time.
         # Test semantic error with an out-of-range value that only generates a warning.
         source = """"test"
-turn left 200"""
+body left 200"""
         lexer = Lexer(source)
         tokens = lexer.tokenize()
         parser = Parser(tokens)

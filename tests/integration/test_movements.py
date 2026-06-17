@@ -1,4 +1,4 @@
-"""Integration tests for movement commands (look, turn, head, tilt, antenna)."""
+"""Integration tests for movement commands (look, body, head, tilt, antenna)."""
 
 import math
 
@@ -26,7 +26,7 @@ from rmscript.ir import IRAction
 
 
 class TestBasicMovements:
-    """Test turn/look/center commands."""
+    """Test body/look/center commands."""
 
     def test_simple_look_left(self):
         """Test compiling a simple 'look left' command."""
@@ -93,10 +93,10 @@ look center"""
         assert pitch == pytest.approx(0.0, abs=0.1)
         assert yaw == pytest.approx(0.0, abs=0.1)
 
-    def test_turn_left_rotates_body_and_head(self):
-        """Test that 'turn left' rotates both body yaw and head yaw."""
+    def test_body_left_rotates_body_and_head(self):
+        """Test that 'body left' rotates both body yaw and head yaw."""
         source = """"test"
-turn left 50"""
+body left 50"""
         result = compile_script(source)
 
         assert result.success
@@ -107,10 +107,10 @@ turn left 50"""
         _, _, yaw = rotation.as_euler("xyz", degrees=True)
         assert yaw == pytest.approx(50.0, abs=0.1)
 
-    def test_turn_right_rotates_body_and_head(self):
-        """Test that 'turn right' rotates both body yaw and head yaw."""
+    def test_body_right_rotates_body_and_head(self):
+        """Test that 'body right' rotates both body yaw and head yaw."""
         source = """"test"
-turn right 30"""
+body right 30"""
         result = compile_script(source)
 
         assert result.success
@@ -121,10 +121,10 @@ turn right 30"""
         _, _, yaw = rotation.as_euler("xyz", degrees=True)
         assert yaw == pytest.approx(-30.0, abs=0.1)
 
-    def test_turn_center_resets_body_and_head(self):
-        """Test that 'turn center' resets both body and head to zero."""
+    def test_body_center_resets_body_and_head(self):
+        """Test that 'body center' resets both body and head to zero."""
         source = """"test"
-turn center"""
+body center"""
         result = compile_script(source)
 
         assert result.success
@@ -365,47 +365,47 @@ antenna both ext"""
 class TestQualitativeStrengths:
     """Test context-aware qualitative keywords."""
 
-    def test_very_small_qualitative_turn(self):
-        """Test VERY_SMALL qualitative for turn."""
+    def test_very_small_qualitative_body(self):
+        """Test VERY_SMALL qualitative for body."""
         source = """"test"
-turn left tiny"""
+body left tiny"""
         result = compile_script(source)
 
         assert result.success
         action = result.ir[0]
         assert action.body_yaw == pytest.approx(math.radians(BODY_YAW_VERY_SMALL), abs=0.01)
 
-    def test_small_qualitative_turn(self):
-        """Test SMALL qualitative for turn."""
+    def test_small_qualitative_body(self):
+        """Test SMALL qualitative for body."""
         source = """"test"
-turn left little"""
+body left little"""
         result = compile_script(source)
 
         assert result.success
         assert result.ir[0].body_yaw == pytest.approx(math.radians(BODY_YAW_SMALL), abs=0.01)
 
-    def test_medium_qualitative_turn(self):
-        """Test MEDIUM qualitative for turn."""
+    def test_medium_qualitative_body(self):
+        """Test MEDIUM qualitative for body."""
         source = """"test"
-turn left medium"""
+body left medium"""
         result = compile_script(source)
 
         assert result.success
         assert result.ir[0].body_yaw == pytest.approx(math.radians(BODY_YAW_MEDIUM), abs=0.01)
 
-    def test_large_qualitative_turn(self):
-        """Test LARGE qualitative for turn."""
+    def test_large_qualitative_body(self):
+        """Test LARGE qualitative for body."""
         source = """"test"
-turn left strong"""
+body left strong"""
         result = compile_script(source)
 
         assert result.success
         assert result.ir[0].body_yaw == pytest.approx(math.radians(BODY_YAW_LARGE), abs=0.01)
 
-    def test_very_large_qualitative_turn(self):
-        """Test VERY_LARGE qualitative for turn."""
+    def test_very_large_qualitative_body(self):
+        """Test VERY_LARGE qualitative for body."""
         source = """"test"
-turn left enormous"""
+body left enormous"""
         result = compile_script(source)
 
         assert result.success
@@ -420,14 +420,14 @@ head forward little"""
         assert result.success
         assert result.ir[0].head_pose[0, 3] == pytest.approx(TRANSLATION_SMALL / 1000.0, abs=0.0001)
 
-    def test_maximum_turn_vs_look_pitch(self):
-        """Test 'maximum' uses different values for turn vs look up."""
-        # Turn
-        turn_source = """"test"
-turn left maximum"""
-        turn_result = compile_script(turn_source)
-        assert turn_result.success
-        assert turn_result.ir[0].body_yaw == pytest.approx(
+    def test_maximum_body_vs_look_pitch(self):
+        """Test 'maximum' uses different values for body vs look up."""
+        # Body
+        body_source = """"test"
+body left maximum"""
+        body_result = compile_script(body_source)
+        assert body_result.success
+        assert body_result.ir[0].body_yaw == pytest.approx(
             math.radians(BODY_YAW_VERY_LARGE), abs=0.01
         )
 
@@ -520,24 +520,24 @@ look right 20"""
         _, _, yaw = rotation.as_euler("xyz", degrees=True)
         assert yaw == pytest.approx(-20.0, abs=0.1)
 
-    def test_look_after_turn_composes_in_world_frame(self):
-        """'turn right 70' then 'look right 20' => head at 90° world, body untouched.
+    def test_look_after_body_composes_in_world_frame(self):
+        """'body right 70' then 'look right 20' => head at 90° world, body untouched.
 
         The look action keeps the body at the turned value (-70°) and its head
         pose is composed into the world frame (-90°), so the head/body
         differential is the intended -20° (20° right of the body axis).
         """
         source = """"test"
-turn right 70
+body right 70
 look right 20"""
         result = compile_script(source)
 
         assert result.success
         assert len(result.ir) == 2
 
-        turn_action, look_action = result.ir[0], result.ir[1]
-        # body motor reaches -70° on the turn and stays there during the look
-        assert turn_action.body_yaw == pytest.approx(math.radians(-70.0), abs=0.01)
+        body_action, look_action = result.ir[0], result.ir[1]
+        # body motor reaches -70° on the body move and stays there during the look
+        assert body_action.body_yaw == pytest.approx(math.radians(-70.0), abs=0.01)
         assert look_action.body_yaw == pytest.approx(math.radians(-70.0), abs=0.01)
 
         # head pose of the look is world-frame -90°
@@ -549,10 +549,10 @@ look right 20"""
         differential = yaw - math.degrees(look_action.body_yaw)
         assert differential == pytest.approx(-20.0, abs=0.1)
 
-    def test_look_after_turn_opposite_direction(self):
-        """'turn right 70' then 'look left 20' => 50° right in the world frame."""
+    def test_look_after_body_opposite_direction(self):
+        """'body right 70' then 'look left 20' => 50° right in the world frame."""
         source = """"test"
-turn right 70
+body right 70
 look left 20"""
         result = compile_script(source)
 
@@ -564,10 +564,10 @@ look left 20"""
         assert yaw == pytest.approx(-50.0, abs=0.1)
         assert look_action.body_yaw == pytest.approx(math.radians(-70.0), abs=0.01)
 
-    def test_same_line_turn_and_look(self):
-        """'turn right 70 and look right 20' on one line => -90° world, body -70°."""
+    def test_same_line_body_and_look(self):
+        """'body right 70 and look right 20' on one line => -90° world, body -70°."""
         source = """"test"
-turn right 70 and look right 20"""
+body right 70 and look right 20"""
         result = compile_script(source)
 
         assert result.success

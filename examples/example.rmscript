@@ -3,7 +3,7 @@
 "Wave hello to the user and play a sound"
 
 # Set initial positions
-turn straight
+body straight
 look straight
 antenna both up
 

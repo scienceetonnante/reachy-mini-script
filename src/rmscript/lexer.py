@@ -9,7 +9,7 @@ class TokenType(Enum):
     """Token types for ReachyMiniScript."""
 
     # Keywords
-    KEYWORD_TURN = auto()
+    KEYWORD_BODY = auto()
     KEYWORD_LOOK = auto()
     KEYWORD_HEAD = auto()
     KEYWORD_TILT = auto()
@@ -80,7 +80,7 @@ class Lexer:
 
         # Keywords (case-insensitive)
         self.keywords = {
-            "turn": TokenType.KEYWORD_TURN,
+            "body": TokenType.KEYWORD_BODY,
             "look": TokenType.KEYWORD_LOOK,
             "head": TokenType.KEYWORD_HEAD,
             "tilt": TokenType.KEYWORD_TILT,

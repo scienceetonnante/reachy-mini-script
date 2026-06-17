@@ -290,7 +290,7 @@ class SemanticAnalyzer:
                 DEFAULT_DISTANCE,
             )
 
-        elif action.keyword == "turn":
+        elif action.keyword == "body":
             # Body yaw rotation
             return (
                 BODY_YAW_VERY_SMALL,
@@ -420,11 +420,11 @@ class SemanticAnalyzer:
         Returns the (possibly clamped) strength. Rotation limits are enforced
         here so that out-of-range angles are clamped (e.g. ``look 80`` -> 65°)
         rather than compensated downstream by the kinematics. The clamp applies
-        to the *relative* contribution of each action; ``turn`` (body yaw) is
-        bounded independently so a same-line ``turn ... and look ...`` can still
+        to the *relative* contribution of each action; ``body`` (body yaw) is
+        bounded independently so a same-line ``body ... and look ...`` can still
         request a large body yaw with a bounded head differential.
         """
-        if action.keyword == "turn":
+        if action.keyword == "body":
             return self._clamp(action.line, strength, MAX_BODY_YAW_DEG, "Body yaw")
 
         elif action.keyword == "look":
@@ -500,7 +500,7 @@ class SemanticAnalyzer:
         max_duration = max((a.duration for a in actions), default=DEFAULT_DURATION)
 
         for action in actions:
-            if action.keyword == "turn":
+            if action.keyword == "body":
                 has_body_yaw = True
                 has_head_movement = True  # Head rotates with body
                 if action.direction in CENTER_SYNONYMS:

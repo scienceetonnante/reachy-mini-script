@@ -15,10 +15,10 @@ from rmscript.ast_nodes import (
 from rmscript.constants import (
     ANTENNA_DIRECTION_KEYWORDS,
     ANTENNA_MODIFIERS,
+    BODY_DIRECTIONS,
     HEAD_DIRECTIONS,
     LOOK_DIRECTIONS,
     TILT_DIRECTIONS,
-    TURN_DIRECTIONS,
 )
 from rmscript.lexer import Token, TokenType
 
@@ -164,7 +164,7 @@ class Parser:
 
         # Check for movement keywords
         if token.type in (
-            TokenType.KEYWORD_TURN,
+            TokenType.KEYWORD_BODY,
             TokenType.KEYWORD_LOOK,
             TokenType.KEYWORD_HEAD,
             TokenType.KEYWORD_TILT,
@@ -335,7 +335,7 @@ class Parser:
 
         # Check if we have a movement keyword
         if token.type in (
-            TokenType.KEYWORD_TURN,
+            TokenType.KEYWORD_BODY,
             TokenType.KEYWORD_LOOK,
             TokenType.KEYWORD_HEAD,
             TokenType.KEYWORD_TILT,
@@ -408,9 +408,9 @@ class Parser:
             direction = self.current().value
 
             # Validate direction for keyword
-            if action.keyword == "turn" and direction not in TURN_DIRECTIONS:
+            if action.keyword == "body" and direction not in BODY_DIRECTIONS:
                 raise self.error(
-                    f"Invalid direction '{direction}' for 'turn' (use left/right/center)"
+                    f"Invalid direction '{direction}' for 'body' (use left/right/center)"
                 )
             elif action.keyword == "look" and direction not in LOOK_DIRECTIONS:
                 raise self.error(

@@ -55,7 +55,7 @@ jump up"""
     def test_compile_script_with_warnings(self):
         """Test compile_script with warnings."""
         source = """"test"
-turn left 200"""
+body left 200"""
         result = compile_script(source)
 
         assert result.success  # Compiles successfully
@@ -178,7 +178,7 @@ class TestVerifyScript:
 
     def test_verify_includes_warnings(self):
         """Test verify_script includes warnings in messages."""
-        is_valid, messages = verify_script('"test"\nturn left 200')
+        is_valid, messages = verify_script('"test"\nbody left 200')
 
         assert is_valid  # Still valid despite warning
         assert len(messages) > 0  # Has warnings

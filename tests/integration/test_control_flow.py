@@ -42,9 +42,9 @@ look left and picture"""
         assert any("picture" in err.message.lower() for err in result.errors)
 
     def test_and_play_error(self):
-        """Test that 'turn left and play sound' produces error."""
+        """Test that 'body left and play sound' produces error."""
         source = """"test"
-turn left and play mysound"""
+body left and play mysound"""
         result = compile_script(source)
 
         assert not result.success
@@ -169,7 +169,7 @@ repeat 2
         """Test repeat block with mixed action types."""
         source = """"test"
 repeat 2
-    turn left
+    body left
     antenna both up
     wait 0.5s"""
         result = compile_script(source)
@@ -226,7 +226,7 @@ class TestCaseInsensitivity:
 
     @pytest.mark.parametrize(
         "command",
-        ["LOOK left", "Look Left", "loOk lEfT", "TURN right", "Turn Right", "tUrN rIgHt"],
+        ["LOOK left", "Look Left", "loOk lEfT", "BODY right", "Body Right", "bOdY rIgHt"],
     )
     def test_case_insensitive_movement_keywords(self, command):
         """Test that movement keywords work with any case."""
@@ -302,7 +302,7 @@ class TestInterpolationMode:
     def test_interpolation_on_all_movement_types(self):
         """Test all movement types have interpolation."""
         source = """"test"
-turn left
+body left
 look up
 head forward 10
 tilt left
