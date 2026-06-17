@@ -19,7 +19,8 @@ look left and up"""
         assert result.success
         assert len(result.ir) == 1
 
-        from scipy.spatial.transform import Rotation as R
+        from scipy.spatial.transform import Rotation as R  # noqa: N817
+
         from rmscript.constants import DEFAULT_ANGLE
 
         action = result.ir[0]
@@ -260,7 +261,6 @@ class TestCaseInsensitivity:
         result1 = compile_script('"test"\nplay MySound')
         result2 = compile_script('"test"\nplay mysound')
 
-        from rmscript.ir import IRPlaySoundAction
 
         assert result1.ir[0].sound_name == "MySound"
         assert result2.ir[0].sound_name == "mysound"

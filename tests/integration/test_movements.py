@@ -3,7 +3,7 @@
 import math
 
 import pytest
-from scipy.spatial.transform import Rotation as R
+from scipy.spatial.transform import Rotation as R  # noqa: N817
 
 from rmscript import compile_script
 from rmscript.constants import (

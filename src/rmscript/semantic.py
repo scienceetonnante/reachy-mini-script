@@ -364,7 +364,8 @@ class SemanticAnalyzer:
             if action.strength_qualitative is not None:
                 self.warn(
                     action.line,
-                    f"Both qualitative '{action.strength_qualitative}' and quantitative '{action.strength}' strength specified, using {action.strength}",
+                    f"Both qualitative '{action.strength_qualitative}' and quantitative "
+                    f"'{action.strength}' strength specified, using {action.strength}",
                 )
             return action.strength
 
@@ -440,37 +441,43 @@ class SemanticAnalyzer:
                 if abs(strength) > MAX_HEAD_TRANSLATION_X_MM:
                     self.warn(
                         action.line,
-                        f"Head X translation {strength}mm exceeds typical range (±{MAX_HEAD_TRANSLATION_X_MM}mm)",
+                        f"Head X translation {strength}mm exceeds typical range "
+                        f"(±{MAX_HEAD_TRANSLATION_X_MM}mm)",
                     )
             elif action.direction in ["left", "right"]:
                 if abs(strength) > MAX_HEAD_TRANSLATION_Y_MM:
                     self.warn(
                         action.line,
-                        f"Head Y translation {strength}mm exceeds typical range (±{MAX_HEAD_TRANSLATION_Y_MM}mm)",
+                        f"Head Y translation {strength}mm exceeds typical range "
+                        f"(±{MAX_HEAD_TRANSLATION_Y_MM}mm)",
                     )
             elif action.direction == "up":
                 if strength > MAX_HEAD_TRANSLATION_Z_MM:
                     self.warn(
                         action.line,
-                        f"Head Z translation {strength}mm exceeds typical range ({MAX_HEAD_TRANSLATION_Z_MM}mm max)",
+                        f"Head Z translation {strength}mm exceeds typical range "
+                        f"({MAX_HEAD_TRANSLATION_Z_MM}mm max)",
                     )
             elif action.direction == "down":
                 if strength > abs(MIN_HEAD_TRANSLATION_Z_MM):
                     self.warn(
                         action.line,
-                        f"Head Z translation {strength}mm exceeds typical range ({MIN_HEAD_TRANSLATION_Z_MM}mm min)",
+                        f"Head Z translation {strength}mm exceeds typical range "
+                        f"({MIN_HEAD_TRANSLATION_Z_MM}mm min)",
                     )
 
         elif action.keyword == "antenna":
             if abs(strength) > MAX_ANTENNA_ANGLE_DEG:
                 self.warn(
                     action.line,
-                    f"Antenna angle {strength}° exceeds maximum (±{MAX_ANTENNA_ANGLE_DEG}°), will be clamped",
+                    f"Antenna angle {strength}° exceeds maximum "
+                    f"(±{MAX_ANTENNA_ANGLE_DEG}°), will be clamped",
                 )
             elif abs(strength) > SAFE_ANTENNA_ANGLE_DEG:
                 self.warn(
                     action.line,
-                    f"Antenna angle {strength}° exceeds recommended safe range (±{SAFE_ANTENNA_ANGLE_DEG}°), may cause collision",
+                    f"Antenna angle {strength}° exceeds recommended safe range "
+                    f"(±{SAFE_ANTENNA_ANGLE_DEG}°), may cause collision",
                 )
 
         # Head translations and antenna angles are not clamped here.

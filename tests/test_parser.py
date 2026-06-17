@@ -3,7 +3,7 @@
 import pytest
 
 from rmscript.lexer import Lexer
-from rmscript.parser import Parser, ParseError
+from rmscript.parser import ParseError, Parser
 
 
 class TestParser:

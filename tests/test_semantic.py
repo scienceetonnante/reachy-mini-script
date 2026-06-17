@@ -2,7 +2,6 @@
 
 import math
 
-import numpy as np
 import pytest
 
 from rmscript.constants import DEFAULT_ANGLE, DEFAULT_DURATION
@@ -201,7 +200,7 @@ turn left 200"""
         program = parser.parse()
 
         analyzer = SemanticAnalyzer()
-        ir = analyzer.analyze(program)
+        analyzer.analyze(program)
 
         # Should have warnings for out-of-range value
         assert len(analyzer.warnings) > 0

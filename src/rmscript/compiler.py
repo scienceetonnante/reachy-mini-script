@@ -1,4 +1,4 @@
-"""Main ReachyMiniScript compiler - orchestrates lexing, parsing, semantic analysis, and optimization."""
+"""Main ReachyMiniScript compiler - lexing, parsing, semantic analysis, optimization."""
 
 import logging
 from pathlib import Path

@@ -1,9 +1,10 @@
 """Tests for high-level compiler API functions."""
 
-import pytest
 from pathlib import Path
 
-from rmscript import compile_script, compile_file, verify_script
+import pytest
+
+from rmscript import compile_file, compile_script, verify_script
 
 
 class TestCompileScript:
@@ -283,7 +284,7 @@ wait 1s'''
 
         # IR types should match
         for script_action, file_action in zip(script_result.ir, file_result.ir):
-            assert type(script_action) == type(file_action)
+            assert type(script_action) is type(file_action)
 
 
 if __name__ == "__main__":

@@ -6,7 +6,7 @@ from typing import Any, Dict
 import pytest
 
 from rmscript import ExecutionContext, compile_script
-from rmscript.ir import IRAction, IRWaitAction, IRPictureAction
+from rmscript.ir import IRAction, IRPictureAction, IRWaitAction
 from rmscript.types import IRList
 
 

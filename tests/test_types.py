@@ -2,8 +2,8 @@
 
 import pytest
 
+from rmscript.ir import IRAction, IRPictureAction, IRPlaySoundAction, IRWaitAction
 from rmscript.types import IRActionType, IRList
-from rmscript.ir import IRAction, IRWaitAction, IRPictureAction, IRPlaySoundAction
 
 
 class TestTypeDefinitions:

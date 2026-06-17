@@ -351,7 +351,12 @@ class Parser:
             self.advance()
         elif previous_keyword:
             # Check if current token is a control keyword (not allowed after 'and')
-            if token.type in (TokenType.KEYWORD_PICTURE, TokenType.KEYWORD_PLAY, TokenType.KEYWORD_LOOP, TokenType.KEYWORD_WAIT):
+            if token.type in (
+                TokenType.KEYWORD_PICTURE,
+                TokenType.KEYWORD_PLAY,
+                TokenType.KEYWORD_LOOP,
+                TokenType.KEYWORD_WAIT,
+            ):
                 raise self.error(
                     f"Cannot combine movement with '{token.value}' using 'and'. "
                     f"Use separate lines instead."
@@ -372,7 +377,8 @@ class Parser:
                 self.advance()
             else:
                 raise self.error(
-                    f"Antenna command requires a modifier (left/right/both), got '{self.current().value}'"
+                    "Antenna command requires a modifier (left/right/both), "
+                    f"got '{self.current().value}'"
                 )
 
             # Now parse clock position (number, clock keyword, or directional keyword)
@@ -399,7 +405,8 @@ class Parser:
                 self.advance()
             else:
                 raise self.error(
-                    f"Antenna command requires a position (0-12, high/low/ext/int, or up/down/left/right), got '{self.current().value}'"
+                    "Antenna command requires a position (0-12, high/low/ext/int, "
+                    f"or up/down/left/right), got '{self.current().value}'"
                 )
 
         # Parse direction for non-antenna keywords
@@ -417,7 +424,8 @@ class Parser:
                 )
             elif action.keyword == "head" and direction not in HEAD_DIRECTIONS:
                 raise self.error(
-                    f"Invalid direction '{direction}' for 'head' (use forward/back/left/right/up/down)"
+                    f"Invalid direction '{direction}' for 'head' "
+                    "(use forward/back/left/right/up/down)"
                 )
             elif action.keyword == "tilt" and direction not in TILT_DIRECTIONS:
                 raise self.error(
