@@ -409,9 +409,7 @@ turn left enormous"""
         result = compile_script(source)
 
         assert result.success
-        assert result.ir[0].body_yaw == pytest.approx(
-            math.radians(BODY_YAW_VERY_LARGE), abs=0.01
-        )
+        assert result.ir[0].body_yaw == pytest.approx(math.radians(BODY_YAW_VERY_LARGE), abs=0.01)
 
     def test_qualitative_for_head_translation(self):
         """Test qualitative keywords for head translations (mm)."""
@@ -420,9 +418,7 @@ head forward little"""
         result = compile_script(source)
 
         assert result.success
-        assert result.ir[0].head_pose[0, 3] == pytest.approx(
-            TRANSLATION_SMALL / 1000.0, abs=0.0001
-        )
+        assert result.ir[0].head_pose[0, 3] == pytest.approx(TRANSLATION_SMALL / 1000.0, abs=0.0001)
 
     def test_maximum_turn_vs_look_pitch(self):
         """Test 'maximum' uses different values for turn vs look up."""

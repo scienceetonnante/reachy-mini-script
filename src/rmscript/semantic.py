@@ -118,11 +118,11 @@ class SemanticAnalyzer:
 
     def warn(self, line: int, message: str) -> None:
         """Add a warning."""
-        self.warnings.append(
-            CompilationError(line=line, message=message, severity="warning")
-        )
+        self.warnings.append(CompilationError(line=line, message=message, severity="warning"))
 
-    def analyze(self, program: Program) -> List[IRAction | IRWaitAction | IRPictureAction | IRPlaySoundAction]:
+    def analyze(
+        self, program: Program
+    ) -> List[IRAction | IRWaitAction | IRPictureAction | IRPlaySoundAction]:
         """Analyze program and generate IR."""
         ir: List[IRAction | IRWaitAction | IRPictureAction | IRPlaySoundAction] = []
 
@@ -131,7 +131,9 @@ class SemanticAnalyzer:
 
         return ir
 
-    def analyze_statement(self, stmt: Statement) -> List[IRAction | IRWaitAction | IRPictureAction | IRPlaySoundAction]:
+    def analyze_statement(
+        self, stmt: Statement
+    ) -> List[IRAction | IRWaitAction | IRPictureAction | IRPlaySoundAction]:
         """Analyze a single statement."""
         if isinstance(stmt, WaitStatement):
             return [self.analyze_wait(stmt)]
@@ -161,15 +163,11 @@ class SemanticAnalyzer:
             duration = DEFAULT_DURATION
             original_text = "wait"
 
-        return IRWaitAction(
-            duration=duration, source_line=wait.line, original_text=original_text
-        )
+        return IRWaitAction(duration=duration, source_line=wait.line, original_text=original_text)
 
     def analyze_picture(self, picture: PictureStatement) -> IRPictureAction:
         """Analyze picture statement."""
-        return IRPictureAction(
-            source_line=picture.line, original_text="picture"
-        )
+        return IRPictureAction(source_line=picture.line, original_text="picture")
 
     def analyze_play_sound(self, play: PlaySoundStatement) -> IRPlaySoundAction:
         """Analyze play sound statement."""
@@ -179,10 +177,12 @@ class SemanticAnalyzer:
             loop=play.loop,
             duration=play.duration,
             source_line=play.line,
-            original_text=f"{'loop' if play.loop else 'play'} {play.sound_name}"
+            original_text=f"{'loop' if play.loop else 'play'} {play.sound_name}",
         )
 
-    def analyze_repeat(self, repeat: RepeatBlock) -> List[IRAction | IRWaitAction | IRPictureAction | IRPlaySoundAction]:
+    def analyze_repeat(
+        self, repeat: RepeatBlock
+    ) -> List[IRAction | IRWaitAction | IRPictureAction | IRPlaySoundAction]:
         """Analyze repeat block - expand it into IR."""
         if repeat.count < 0:
             self.error(repeat.line, f"Repeat count cannot be negative: {repeat.count}")
@@ -238,7 +238,9 @@ class SemanticAnalyzer:
             if action.strength_qualitative:
                 action_parts.append(action.strength_qualitative)
             elif action.strength is not None:
-                action_parts.append(str(int(action.strength) if action.strength.is_integer() else action.strength))
+                action_parts.append(
+                    str(int(action.strength) if action.strength.is_integer() else action.strength)
+                )
 
             # Add duration (keyword or quantitative)
             if action.duration_keyword:
@@ -270,46 +272,90 @@ class SemanticAnalyzer:
             line=action.line,
         )
 
-    def _get_qualitative_values(self, action: SingleAction) -> tuple[float, float, float, float, float, float]:
+    def _get_qualitative_values(
+        self, action: SingleAction
+    ) -> tuple[float, float, float, float, float, float]:
         """Get context-aware qualitative values based on movement type.
 
         Returns tuple of (very_small, small, medium, large, very_large, default).
         """
         if action.keyword == "head":
             # Head translations (distances in mm)
-            return (TRANSLATION_VERY_SMALL, TRANSLATION_SMALL, TRANSLATION_MEDIUM,
-                    TRANSLATION_LARGE, TRANSLATION_VERY_LARGE, DEFAULT_DISTANCE)
+            return (
+                TRANSLATION_VERY_SMALL,
+                TRANSLATION_SMALL,
+                TRANSLATION_MEDIUM,
+                TRANSLATION_LARGE,
+                TRANSLATION_VERY_LARGE,
+                DEFAULT_DISTANCE,
+            )
 
         elif action.keyword == "turn":
             # Body yaw rotation
-            return (BODY_YAW_VERY_SMALL, BODY_YAW_SMALL, BODY_YAW_MEDIUM,
-                    BODY_YAW_LARGE, BODY_YAW_VERY_LARGE, DEFAULT_ANGLE)
+            return (
+                BODY_YAW_VERY_SMALL,
+                BODY_YAW_SMALL,
+                BODY_YAW_MEDIUM,
+                BODY_YAW_LARGE,
+                BODY_YAW_VERY_LARGE,
+                DEFAULT_ANGLE,
+            )
 
         elif action.keyword == "antenna":
             # Antenna rotations
-            return (ANTENNA_VERY_SMALL, ANTENNA_SMALL, ANTENNA_MEDIUM,
-                    ANTENNA_LARGE, ANTENNA_VERY_LARGE, DEFAULT_ANTENNA_ANGLE)
+            return (
+                ANTENNA_VERY_SMALL,
+                ANTENNA_SMALL,
+                ANTENNA_MEDIUM,
+                ANTENNA_LARGE,
+                ANTENNA_VERY_LARGE,
+                DEFAULT_ANTENNA_ANGLE,
+            )
 
         elif action.keyword == "tilt":
             # Head roll - limited by cone constraint
-            return (HEAD_PITCH_ROLL_VERY_SMALL, HEAD_PITCH_ROLL_SMALL, HEAD_PITCH_ROLL_MEDIUM,
-                    HEAD_PITCH_ROLL_LARGE, HEAD_PITCH_ROLL_VERY_LARGE, DEFAULT_ANGLE)
+            return (
+                HEAD_PITCH_ROLL_VERY_SMALL,
+                HEAD_PITCH_ROLL_SMALL,
+                HEAD_PITCH_ROLL_MEDIUM,
+                HEAD_PITCH_ROLL_LARGE,
+                HEAD_PITCH_ROLL_VERY_LARGE,
+                DEFAULT_ANGLE,
+            )
 
         elif action.keyword == "look":
             # Head pitch/yaw - depends on direction
             if action.direction in ["up", "down"]:
                 # Pitch - limited by cone constraint
-                return (HEAD_PITCH_ROLL_VERY_SMALL, HEAD_PITCH_ROLL_SMALL, HEAD_PITCH_ROLL_MEDIUM,
-                        HEAD_PITCH_ROLL_LARGE, HEAD_PITCH_ROLL_VERY_LARGE, DEFAULT_ANGLE)
+                return (
+                    HEAD_PITCH_ROLL_VERY_SMALL,
+                    HEAD_PITCH_ROLL_SMALL,
+                    HEAD_PITCH_ROLL_MEDIUM,
+                    HEAD_PITCH_ROLL_LARGE,
+                    HEAD_PITCH_ROLL_VERY_LARGE,
+                    DEFAULT_ANGLE,
+                )
             else:
                 # Yaw (left/right) - larger range
-                return (HEAD_YAW_VERY_SMALL, HEAD_YAW_SMALL, HEAD_YAW_MEDIUM,
-                        HEAD_YAW_LARGE, HEAD_YAW_VERY_LARGE, DEFAULT_ANGLE)
+                return (
+                    HEAD_YAW_VERY_SMALL,
+                    HEAD_YAW_SMALL,
+                    HEAD_YAW_MEDIUM,
+                    HEAD_YAW_LARGE,
+                    HEAD_YAW_VERY_LARGE,
+                    DEFAULT_ANGLE,
+                )
 
         else:
             # Fallback to head yaw values
-            return (HEAD_YAW_VERY_SMALL, HEAD_YAW_SMALL, HEAD_YAW_MEDIUM,
-                    HEAD_YAW_LARGE, HEAD_YAW_VERY_LARGE, DEFAULT_ANGLE)
+            return (
+                HEAD_YAW_VERY_SMALL,
+                HEAD_YAW_SMALL,
+                HEAD_YAW_MEDIUM,
+                HEAD_YAW_LARGE,
+                HEAD_YAW_VERY_LARGE,
+                DEFAULT_ANGLE,
+            )
 
     def resolve_strength(self, action: SingleAction) -> float:
         """Resolve strength parameter with context-aware qualitative mapping."""
@@ -382,13 +428,9 @@ class SemanticAnalyzer:
 
         elif action.keyword == "look":
             if action.direction in ["up", "down"]:  # pitch (cone constraint)
-                return self._clamp(
-                    action.line, strength, MAX_HEAD_PITCH_DEG, "Head pitch"
-                )
+                return self._clamp(action.line, strength, MAX_HEAD_PITCH_DEG, "Head pitch")
             elif action.direction in ["left", "right"]:  # yaw (head/body differential)
-                return self._clamp(
-                    action.line, strength, MAX_HEAD_BODY_YAW_DIFF_DEG, "Head yaw"
-                )
+                return self._clamp(action.line, strength, MAX_HEAD_BODY_YAW_DIFF_DEG, "Head yaw")
 
         elif action.keyword == "tilt":
             return self._clamp(action.line, strength, MAX_HEAD_ROLL_DEG, "Head roll")
@@ -434,9 +476,7 @@ class SemanticAnalyzer:
         # Head translations and antenna angles are not clamped here.
         return strength
 
-    def merge_actions(
-        self, actions: List["ResolvedAction"], line: int
-    ) -> IRAction:  # noqa: F821
+    def merge_actions(self, actions: List["ResolvedAction"], line: int) -> IRAction:  # noqa: F821
         """Merge multiple actions into a single IRAction IR node."""
         # Extract parameters
         head_pose_params = {"x": 0.0, "y": 0.0, "z": 0.0, "roll": 0.0, "pitch": 0.0, "yaw": 0.0}
@@ -567,9 +607,7 @@ class SemanticAnalyzer:
             # the motors' positive rotation direction, so negate to match the
             # SDK/hardware sign. Without this both antennas point opposite to
             # the requested direction (e.g. "antenna left left" pointed right).
-            result.antennas = [
-                -np.deg2rad(a) if a is not None else None for a in antennas
-            ]
+            result.antennas = [-np.deg2rad(a) if a is not None else None for a in antennas]
 
         if has_body_yaw:
             result.body_yaw = np.deg2rad(body_yaw)

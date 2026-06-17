@@ -68,11 +68,7 @@ class Optimizer:
 
             # Remove no-op actions (no actual movement)
             if isinstance(action, IRAction):
-                if (
-                    action.head_pose is None
-                    and action.antennas is None
-                    and action.body_yaw is None
-                ):
+                if action.head_pose is None and action.antennas is None and action.body_yaw is None:
                     # Skip this action - it does nothing
                     i += 1
                     continue

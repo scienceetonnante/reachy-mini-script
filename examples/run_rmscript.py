@@ -12,8 +12,7 @@ from rmscript import compile_file
 from rmscript.ir import IRAction, IRPictureAction, IRPlaySoundAction, IRWaitAction
 
 logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -43,14 +42,12 @@ def execute_ir_on_robot(ir_actions: list, robot: ReachyMini, script_path: Path) 
             )
             logger.info(f"  → Movement completed (duration={duration:.2f}s)")
 
-
         # (2) Wait action
         elif isinstance(action, IRWaitAction):
             # Handle wait action
             duration = action.duration
             logger.info(f"  → Waiting {duration:.2f}s...")
             time.sleep(duration)
-
 
         # (3) Play sound action
         elif isinstance(action, IRPlaySoundAction):
@@ -75,7 +72,6 @@ def execute_ir_on_robot(ir_actions: list, robot: ReachyMini, script_path: Path) 
             if action.blocking and action.duration:
                 time.sleep(action.duration)
 
-
         # (4) Picture action
         elif isinstance(action, IRPictureAction):
             logger.info("  → Capturing picture...")
@@ -83,6 +79,7 @@ def execute_ir_on_robot(ir_actions: list, robot: ReachyMini, script_path: Path) 
 
             if frame is not None:
                 import cv2
+
                 timestamp = time.strftime("%Y%m%d_%H%M%S")
                 output_path = f"/tmp/rmscript_picture_{timestamp}.jpg"
                 cv2.imwrite(output_path, frame)
@@ -95,19 +92,13 @@ def execute_ir_on_robot(ir_actions: list, robot: ReachyMini, script_path: Path) 
 
 def main() -> int:
     """Main entry point."""
-    parser = argparse.ArgumentParser(
-        description="Execute a rmscript file on the Reachy Mini robot"
-    )
-    parser.add_argument(
-        "script_file",
-        type=str,
-        help="Path to the rmscript file to execute"
-    )
+    parser = argparse.ArgumentParser(description="Execute a rmscript file on the Reachy Mini robot")
+    parser.add_argument("script_file", type=str, help="Path to the rmscript file to execute")
     parser.add_argument(
         "--localhost",
         action="store_true",
         default=True,
-        help="Connect to localhost only (default: True)"
+        help="Connect to localhost only (default: True)",
     )
 
     args = parser.parse_args()
@@ -170,6 +161,7 @@ def main() -> int:
     except Exception as e:
         logger.error(f"Execution failed: {e}")
         import traceback
+
         traceback.print_exc()
         return 1
 
