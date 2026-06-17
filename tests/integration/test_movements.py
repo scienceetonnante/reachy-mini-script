@@ -578,5 +578,50 @@ body right 70 and look right 20"""
         assert yaw == pytest.approx(-90.0, abs=0.1)
 
 
+class TestReset:
+    """Test the 'reset' keyword (neutral base pose on all DOFs)."""
+
+    def test_reset_produces_neutral_pose(self):
+        """'reset' should zero body yaw, head orientation, and raise antennas up."""
+        source = """"test"
+body left 90
+look right 30
+tilt left 20
+antenna both down
+reset"""
+        result = compile_script(source)
+
+        assert result.success
+
+        # The last IR action is the expanded reset.
+        action = result.ir[-1]
+
+        # Body yaw back to zero.
+        assert action.body_yaw == pytest.approx(0.0, abs=0.01)
+
+        # Head orientation back to identity (no yaw/pitch/roll, no translation).
+        rotation = R.from_matrix(action.head_pose[:3, :3])
+        roll, pitch, yaw = rotation.as_euler("xyz", degrees=True)
+        assert roll == pytest.approx(0.0, abs=0.1)
+        assert pitch == pytest.approx(0.0, abs=0.1)
+        assert yaw == pytest.approx(0.0, abs=0.1)
+        assert action.head_pose[:3, 3] == pytest.approx([0.0, 0.0, 0.0], abs=1e-4)
+
+        # Both antennas raised "up" (clock 0 => 0°).
+        assert action.antennas is not None
+        assert action.antennas[0] == pytest.approx(0.0, abs=1e-6)
+        assert action.antennas[1] == pytest.approx(0.0, abs=1e-6)
+
+    def test_reset_is_single_merged_action(self):
+        """'reset' expands to one simultaneous IR action, not four."""
+        source = """"test"
+reset"""
+        result = compile_script(source)
+
+        assert result.success
+        action_count = sum(1 for a in result.ir if isinstance(a, IRAction))
+        assert action_count == 1
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

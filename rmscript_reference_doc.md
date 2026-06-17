@@ -73,6 +73,9 @@ body right
 antenna up
 head forward 10
 
+# Reset all DOFs to a neutral base pose
+reset
+
 # Wait command
 wait 2s
 wait 0.5s
@@ -207,6 +210,23 @@ tilt center        # Return to level
 
 **Physical Limits:**
 - Roll: ±40°
+
+### Reset
+
+Return every degree of freedom to its neutral base pose:
+
+```rmscript
+reset             # Back to a neutral pose on all DOFs
+```
+
+`reset` takes **no arguments**. It is shorthand for:
+
+```rmscript
+look center and tilt center and body center and antenna both up
+```
+
+All movements happen simultaneously, in a single merged command. Trying to
+add an argument (e.g. `reset left`) is a compilation error.
 
 ### Wait
 

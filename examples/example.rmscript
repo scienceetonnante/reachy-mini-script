@@ -44,3 +44,6 @@ repeat 3
 tilt center
 
 look center
+
+# Return everything to a neutral base pose
+reset

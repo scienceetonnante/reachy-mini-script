@@ -44,6 +44,7 @@ else:
 - **Time control**: `wait 2s`, `slow`, `fast`
 - **Qualitative strengths**: `little`, `medium`, `lot`, `maximum`
 - **Compound movements**: `look left and up`
+- **Reset to neutral**: `reset` (all DOFs back to base pose)
 - **Loops**: `repeat 3` blocks
 - **Sound & pictures**: `play sound`, `picture`
 

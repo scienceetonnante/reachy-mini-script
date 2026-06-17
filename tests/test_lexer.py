@@ -16,7 +16,7 @@ class TestLexer:
 
     def test_tokenize_keywords(self, lexer):
         """Test that all movement keywords are recognized."""
-        source = "body look head tilt antenna wait picture play loop repeat end"
+        source = "body look head tilt antenna wait picture play loop repeat reset end"
         tokens = lexer(source).tokenize()
 
         expected_types = [
@@ -30,6 +30,7 @@ class TestLexer:
             TokenType.KEYWORD_PLAY,
             TokenType.KEYWORD_LOOP,
             TokenType.KEYWORD_REPEAT,
+            TokenType.KEYWORD_RESET,
             TokenType.KEYWORD_END,
             TokenType.EOF,
         ]

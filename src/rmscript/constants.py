@@ -101,7 +101,7 @@ SAFE_ANTENNA_ANGLE_DEG = 120.0  # recommended maximum for safety
 MOVEMENT_KEYWORDS: List[str] = ["body", "look", "head", "tilt", "antenna"]
 
 # Control Keywords
-CONTROL_KEYWORDS: List[str] = ["wait", "repeat", "end", "play", "loop", "picture"]
+CONTROL_KEYWORDS: List[str] = ["wait", "repeat", "end", "play", "loop", "picture", "reset"]
 
 # Sound Playback Mode Keywords
 SOUND_BLOCKING_KEYWORDS: List[str] = ["pause", "fully", "wait", "block", "complete"]

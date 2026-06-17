@@ -162,6 +162,10 @@ class Parser:
         if token.type == TokenType.KEYWORD_LOOP:
             return self.parse_loop()
 
+        # Check for reset command
+        if token.type == TokenType.KEYWORD_RESET:
+            return self.parse_reset()
+
         # Check for movement keywords
         if token.type in (
             TokenType.KEYWORD_BODY,
@@ -266,6 +270,38 @@ class Parser:
             play.duration = 10.0
 
         return play
+
+    def parse_reset(self) -> ActionChain:
+        """Parse reset command (no arguments).
+
+        ``reset`` returns every degree of freedom to its neutral base pose. It
+        is sugar for ``look center and tilt center and body center and antenna
+        both up``, expanded here into a single simultaneous action chain so it
+        reuses the normal movement-merging logic.
+        """
+        token = self.current()
+        self.advance()  # consume 'reset'
+
+        # 'reset' takes no arguments.
+        if self.current().type not in (
+            TokenType.NEWLINE,
+            TokenType.EOF,
+            TokenType.DEDENT,
+            TokenType.KEYWORD_END,
+        ):
+            raise self.error(f"'reset' takes no arguments, got {self.current().value!r}")
+
+        def _action(**kwargs: object) -> SingleAction:
+            return SingleAction(line=token.line, column=token.column, **kwargs)  # type: ignore[arg-type]
+
+        chain = ActionChain(line=token.line, column=token.column)
+        chain.actions = [
+            _action(keyword="look", direction="center"),
+            _action(keyword="tilt", direction="center"),
+            _action(keyword="body", direction="center"),
+            _action(keyword="antenna", antenna_modifier="both", direction="up"),
+        ]
+        return chain
 
     def parse_repeat_block(self) -> RepeatBlock:
         """Parse repeat block."""

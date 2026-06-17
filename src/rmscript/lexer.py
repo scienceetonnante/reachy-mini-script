@@ -19,6 +19,7 @@ class TokenType(Enum):
     KEYWORD_PLAY = auto()
     KEYWORD_LOOP = auto()
     KEYWORD_REPEAT = auto()
+    KEYWORD_RESET = auto()
     KEYWORD_END = auto()
     KEYWORD_DESCRIPTION = auto()
 
@@ -90,6 +91,7 @@ class Lexer:
             "play": TokenType.KEYWORD_PLAY,
             "loop": TokenType.KEYWORD_LOOP,
             "repeat": TokenType.KEYWORD_REPEAT,
+            "reset": TokenType.KEYWORD_RESET,
             "end": TokenType.KEYWORD_END,
         }
 

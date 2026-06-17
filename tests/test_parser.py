@@ -71,6 +71,40 @@ body left and look right"""
         assert program.statements[0].actions[0].keyword == "body"
         assert program.statements[0].actions[1].keyword == "look"
 
+    def test_parse_reset_expands_to_neutral_chain(self):
+        """Test that 'reset' expands to a neutral action chain on all DOFs."""
+        source = """"test"
+reset"""
+        lexer = Lexer(source)
+        tokens = lexer.tokenize()
+        parser = Parser(tokens)
+        program = parser.parse()
+
+        assert len(program.statements) == 1
+        actions = program.statements[0].actions
+        assert len(actions) == 4
+        assert [(a.keyword, a.direction) for a in actions] == [
+            ("look", "center"),
+            ("tilt", "center"),
+            ("body", "center"),
+            ("antenna", "up"),
+        ]
+        antenna = actions[3]
+        assert antenna.antenna_modifier == "both"
+
+    def test_parse_reset_with_argument_errors(self):
+        """Test that 'reset' rejects trailing arguments."""
+        source = """"test"
+reset left"""
+        lexer = Lexer(source)
+        tokens = lexer.tokenize()
+        parser = Parser(tokens)
+
+        with pytest.raises(ParseError) as excinfo:
+            parser.parse()
+
+        assert "reset" in str(excinfo.value).lower()
+
     def test_parse_repeat_block(self):
         """Test that repeat blocks are parsed."""
         source = """"test"
