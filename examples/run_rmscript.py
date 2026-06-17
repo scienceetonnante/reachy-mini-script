@@ -154,6 +154,12 @@ def main() -> int:
         logger.error("Make sure the reachy_mini daemon is running")
         return 1
 
+    # `look` (and other head movements) carry an explicit body_yaw in the IR and
+    # must not spill into the body yaw motor. Disable automatic body yaw so the
+    # kinematics use the per-action body_yaw we provide instead of redistributing
+    # head yaw into the body.
+    robot.set_automatic_body_yaw(False)
+
     # Execute the IR on the robot
     try:
         execute_ir_on_robot(result.ir, robot, script_path)

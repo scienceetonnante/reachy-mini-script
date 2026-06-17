@@ -16,6 +16,9 @@ from rmscript.constants import (
     DEFAULT_ANGLE,
     DEFAULT_DURATION,
     HEAD_PITCH_ROLL_VERY_LARGE,
+    MAX_HEAD_BODY_YAW_DIFF_DEG,
+    MAX_HEAD_PITCH_DEG,
+    MAX_HEAD_ROLL_DEG,
     TRANSLATION_SMALL,
     TRANSLATION_VERY_LARGE,
 )
@@ -451,6 +454,132 @@ head forward maximum"""
         assert result.ir[0].head_pose[0, 3] == pytest.approx(
             TRANSLATION_VERY_LARGE / 1000.0, abs=0.0001
         )
+
+
+class TestRotationLimitsClamped:
+    """Out-of-range rotations are clamped to mechanical limits (not compensated)."""
+
+    def test_look_yaw_clamped_to_differential_limit(self):
+        """'look right 80' clamps head yaw to the ±65° head/body differential."""
+        source = """"test"
+look right 80"""
+        result = compile_script(source)
+
+        assert result.success
+        rotation = R.from_matrix(result.ir[0].head_pose[:3, :3])
+        _, _, yaw = rotation.as_euler("xyz", degrees=True)
+        # right = negative yaw, clamped to -65°
+        assert yaw == pytest.approx(-MAX_HEAD_BODY_YAW_DIFF_DEG, abs=0.1)
+        assert any("clamped" in str(w).lower() for w in result.warnings)
+
+    def test_look_yaw_within_limit_unchanged(self):
+        """'look right 45' stays at 45° (within the ±65° limit)."""
+        source = """"test"
+look right 45"""
+        result = compile_script(source)
+
+        assert result.success
+        rotation = R.from_matrix(result.ir[0].head_pose[:3, :3])
+        _, _, yaw = rotation.as_euler("xyz", degrees=True)
+        assert yaw == pytest.approx(-45.0, abs=0.1)
+
+    def test_look_pitch_clamped_to_cone_limit(self):
+        """'look up 50' clamps head pitch to the ±40° cone limit."""
+        source = """"test"
+look up 50"""
+        result = compile_script(source)
+
+        assert result.success
+        rotation = R.from_matrix(result.ir[0].head_pose[:3, :3])
+        _, pitch, _ = rotation.as_euler("xyz", degrees=True)
+        # up = negative pitch, clamped to -40°
+        assert pitch == pytest.approx(-MAX_HEAD_PITCH_DEG, abs=0.1)
+
+    def test_tilt_roll_clamped_to_cone_limit(self):
+        """'tilt right 50' clamps head roll to the ±40° cone limit."""
+        source = """"test"
+tilt right 50"""
+        result = compile_script(source)
+
+        assert result.success
+        rotation = R.from_matrix(result.ir[0].head_pose[:3, :3])
+        roll, _, _ = rotation.as_euler("xyz", degrees=True)
+        # tilt right = positive roll, clamped to +40°
+        assert roll == pytest.approx(MAX_HEAD_ROLL_DEG, abs=0.1)
+
+
+class TestLookRelativeToBody:
+    """`look` is head-only and relative to the current body yaw axis."""
+
+    def test_look_alone_does_not_move_body(self):
+        """'look right 20' on its own leaves the body yaw at 0."""
+        source = """"test"
+look right 20"""
+        result = compile_script(source)
+
+        assert result.success
+        action = result.ir[0]
+        assert action.body_yaw == pytest.approx(0.0, abs=0.01)
+        rotation = R.from_matrix(action.head_pose[:3, :3])
+        _, _, yaw = rotation.as_euler("xyz", degrees=True)
+        assert yaw == pytest.approx(-20.0, abs=0.1)
+
+    def test_look_after_turn_composes_in_world_frame(self):
+        """'turn right 70' then 'look right 20' => head at 90° world, body untouched.
+
+        The look action keeps the body at the turned value (-70°) and its head
+        pose is composed into the world frame (-90°), so the head/body
+        differential is the intended -20° (20° right of the body axis).
+        """
+        source = """"test"
+turn right 70
+look right 20"""
+        result = compile_script(source)
+
+        assert result.success
+        assert len(result.ir) == 2
+
+        turn_action, look_action = result.ir[0], result.ir[1]
+        # body motor reaches -70° on the turn and stays there during the look
+        assert turn_action.body_yaw == pytest.approx(math.radians(-70.0), abs=0.01)
+        assert look_action.body_yaw == pytest.approx(math.radians(-70.0), abs=0.01)
+
+        # head pose of the look is world-frame -90°
+        rotation = R.from_matrix(look_action.head_pose[:3, :3])
+        _, _, yaw = rotation.as_euler("xyz", degrees=True)
+        assert yaw == pytest.approx(-90.0, abs=0.1)
+
+        # => realized head/body differential is the intended -20°
+        differential = yaw - math.degrees(look_action.body_yaw)
+        assert differential == pytest.approx(-20.0, abs=0.1)
+
+    def test_look_after_turn_opposite_direction(self):
+        """'turn right 70' then 'look left 20' => 50° right in the world frame."""
+        source = """"test"
+turn right 70
+look left 20"""
+        result = compile_script(source)
+
+        assert result.success
+        look_action = result.ir[1]
+        rotation = R.from_matrix(look_action.head_pose[:3, :3])
+        _, _, yaw = rotation.as_euler("xyz", degrees=True)
+        # world = -70 + 20 = -50
+        assert yaw == pytest.approx(-50.0, abs=0.1)
+        assert look_action.body_yaw == pytest.approx(math.radians(-70.0), abs=0.01)
+
+    def test_same_line_turn_and_look(self):
+        """'turn right 70 and look right 20' on one line => -90° world, body -70°."""
+        source = """"test"
+turn right 70 and look right 20"""
+        result = compile_script(source)
+
+        assert result.success
+        action = result.ir[0]
+        assert action.body_yaw == pytest.approx(math.radians(-70.0), abs=0.01)
+        rotation = R.from_matrix(action.head_pose[:3, :3])
+        _, _, yaw = rotation.as_euler("xyz", degrees=True)
+        assert yaw == pytest.approx(-90.0, abs=0.1)
 
 
 if __name__ == "__main__":

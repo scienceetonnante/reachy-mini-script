@@ -99,7 +99,10 @@ WAIT 1s      # Same as "wait 1s"
 
 ### Look (Head Orientation)
 
-Control the robot's head orientation (pitch and yaw):
+Control the robot's head orientation (pitch and yaw). `look` only moves the
+**head**, relative to the body's current facing direction — it never drives the
+body yaw motor. So after a `turn`, a `look` is measured from the turned body
+axis (e.g. `turn right 70` then `look right 20` ends up 90° right in the world).
 
 ```rmscript
 look left          # Turn head left (30° default)
@@ -113,9 +116,9 @@ look straight     # Same as center
 look neutral      # Same as center
 ```
 
-**Physical Limits:**
+**Physical Limits (enforced — out-of-range angles are clamped, not compensated):**
 - Pitch (up/down): ±40°
-- Yaw (left/right): ±180° absolute, ±65° relative to body
+- Yaw (left/right): ±65° relative to the body axis (e.g. `look right 80` → 65°)
 
 ### Turn (Body Rotation)
 
@@ -611,13 +614,13 @@ Warnings allow compilation but alert to potential issues:
 # Exceeds safe range
 turn left 200
 ```
-**Output:** `⚠️  Line 1: Body yaw 200.0° exceeds safe range (±160.0°), will be clamped`
+**Output:** `⚠️  Line 1: Body yaw 200.0° exceeds limit (±160.0°), clamped to 160.0°`
 
 ```rmscript
 # Exceeds physical limit
 look up 50
 ```
-**Output:** `⚠️  Line 1: Head pitch 50.0° exceeds limit (±40.0°), will be clamped`
+**Output:** `⚠️  Line 1: Head pitch 50.0° exceeds limit (±40.0°), clamped to 40.0°`
 
 ### Handling Errors in Code
 
@@ -718,18 +721,21 @@ turn right 90
 
 rmscript validates all movements against these limits:
 
-| Movement | Limit | Warning Threshold |
+| Movement | Limit | Enforcement |
 |----------|-------|------------------|
-| Body yaw (turn) | ±180° | ±160° |
-| Head yaw (look left/right) | ±180° absolute | ±65° relative to body |
-| Head pitch (look up/down) | ±40° | ±40° |
-| Head roll (tilt) | ±40° | ±40° |
-| Antenna | ±90° | ±65° |
-| Head X (forward/back) | ±50mm typical | - |
-| Head Y (left/right) | ±50mm typical | - |
-| Head Z (up/down) | +20mm / -30mm typical | - |
+| Body yaw (turn) | ±160° | Clamped |
+| Head yaw (look left/right) | ±65° relative to body | Clamped |
+| Head pitch (look up/down) | ±40° | Clamped |
+| Head roll (tilt) | ±40° | Clamped |
+| Antenna | ±90° (safe ±65°) | Warning only |
+| Head X (forward/back) | ±50mm typical | Warning only |
+| Head Y (left/right) | ±50mm typical | Warning only |
+| Head Z (up/down) | +20mm / -30mm typical | Warning only |
 
-Exceeding these limits generates **warnings** but still compiles. The robot's hardware will clamp values to safe ranges.
+Rotation limits (turn / look / tilt) are **enforced at compile time**: an
+out-of-range angle is clamped to the limit and a warning is emitted (e.g.
+`look right 80` compiles to a 65° head turn). Translations and antenna angles
+currently emit warnings only.
 
 ## Default Values
 

@@ -51,6 +51,7 @@ from rmscript.constants import (
     LARGE_KEYWORDS,
     MAX_ANTENNA_ANGLE_DEG,
     MAX_BODY_YAW_DEG,
+    MAX_HEAD_BODY_YAW_DIFF_DEG,
     MAX_HEAD_PITCH_DEG,
     MAX_HEAD_ROLL_DEG,
     MAX_HEAD_TRANSLATION_X_MM,
@@ -257,8 +258,8 @@ class SemanticAnalyzer:
         # Determine duration
         duration = self.resolve_duration(action)
 
-        # Check ranges and issue warnings
-        self.validate_ranges(action, strength)
+        # Check ranges, clamp rotation angles to mechanical limits, and warn
+        strength = self.validate_ranges(action, strength)
 
         return ResolvedAction(
             keyword=action.keyword,
@@ -355,29 +356,42 @@ class SemanticAnalyzer:
 
         return DEFAULT_DURATION
 
-    def validate_ranges(self, action: SingleAction, strength: float) -> None:
-        """Validate ranges and issue warnings."""
+    def _clamp(self, line: int, value: float, limit: float, label: str) -> float:
+        """Clamp value to ±limit, emitting a warning if clamping occurs."""
+        if abs(value) > limit:
+            clamped = limit if value > 0 else -limit
+            self.warn(
+                line,
+                f"{label} {value}° exceeds limit (±{limit}°), clamped to {clamped}°",
+            )
+            return clamped
+        return value
+
+    def validate_ranges(self, action: SingleAction, strength: float) -> float:
+        """Validate ranges, clamp rotation angles to mechanical limits, and warn.
+
+        Returns the (possibly clamped) strength. Rotation limits are enforced
+        here so that out-of-range angles are clamped (e.g. ``look 80`` -> 65°)
+        rather than compensated downstream by the kinematics. The clamp applies
+        to the *relative* contribution of each action; ``turn`` (body yaw) is
+        bounded independently so a same-line ``turn ... and look ...`` can still
+        request a large body yaw with a bounded head differential.
+        """
         if action.keyword == "turn":
-            if abs(strength) > MAX_BODY_YAW_DEG:
-                self.warn(
-                    action.line,
-                    f"Body yaw {strength}° exceeds safe range (±{MAX_BODY_YAW_DEG}°), will be clamped",
-                )
+            return self._clamp(action.line, strength, MAX_BODY_YAW_DEG, "Body yaw")
 
         elif action.keyword == "look":
-            if action.direction in ["up", "down"]:  # pitch
-                if abs(strength) > MAX_HEAD_PITCH_DEG:
-                    self.warn(
-                        action.line,
-                        f"Head pitch {strength}° exceeds limit (±{MAX_HEAD_PITCH_DEG}°), will be clamped",
-                    )
+            if action.direction in ["up", "down"]:  # pitch (cone constraint)
+                return self._clamp(
+                    action.line, strength, MAX_HEAD_PITCH_DEG, "Head pitch"
+                )
+            elif action.direction in ["left", "right"]:  # yaw (head/body differential)
+                return self._clamp(
+                    action.line, strength, MAX_HEAD_BODY_YAW_DIFF_DEG, "Head yaw"
+                )
 
         elif action.keyword == "tilt":
-            if abs(strength) > MAX_HEAD_ROLL_DEG:
-                self.warn(
-                    action.line,
-                    f"Head roll {strength}° exceeds limit (±{MAX_HEAD_ROLL_DEG}°), will be clamped",
-                )
+            return self._clamp(action.line, strength, MAX_HEAD_ROLL_DEG, "Head roll")
 
         elif action.keyword == "head":
             if action.direction in ["forward", "back"]:
@@ -416,6 +430,9 @@ class SemanticAnalyzer:
                     action.line,
                     f"Antenna angle {strength}° exceeds recommended safe range (±{SAFE_ANTENNA_ANGLE_DEG}°), may cause collision",
                 )
+
+        # Head translations and antenna angles are not clamped here.
+        return strength
 
     def merge_actions(
         self, actions: List["ResolvedAction"], line: int
