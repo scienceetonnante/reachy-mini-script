@@ -95,10 +95,11 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Execute a rmscript file on the Reachy Mini robot")
     parser.add_argument("script_file", type=str, help="Path to the rmscript file to execute")
     parser.add_argument(
-        "--localhost",
-        action="store_true",
-        default=True,
-        help="Connect to localhost only (default: True)",
+        "--host",
+        type=str,
+        default=None,
+        help="Hostname or IP of the daemon for a networked (e.g. wireless) robot. "
+        "If omitted, connects to a daemon running on this machine (localhost).",
     )
 
     args = parser.parse_args()
@@ -127,19 +128,26 @@ def main() -> int:
 
     logger.info(f"Compilation successful! Generated {len(result.ir)} IR actions")
 
-    # Connect to robot
+    # Connect to robot.
+    # - No --host: daemon runs on this machine. "localhost_only" lets the SDK
+    #   use the LOCAL media backend (robot's own speaker/camera via IPC).
+    # - With --host: networked/wireless robot, stream media over WebRTC.
     logger.info("Connecting to Reachy Mini robot...")
+    if args.host:
+        conn_kwargs = {"host": args.host, "connection_mode": "network"}
+    else:
+        conn_kwargs = {"connection_mode": "localhost_only"}
     try:
-        # Try to use gstreamer backend for robot speaker, fall back to default if not available
+        # Prefer full media (robot speaker/camera); fall back to no_media so
+        # movement still works if the media backend can't initialize.
         try:
-            robot = ReachyMini(localhost_only=args.localhost, media_backend="gstreamer")
-            logger.info("Connected to robot with GStreamer backend (robot speaker)")
-        except (ImportError, ModuleNotFoundError) as e:
-            logger.warning(f"GStreamer backend not available: {e}")
-            logger.warning("Falling back to default backend (computer speaker)")
-            logger.warning("To use robot speaker, install: uv add 'reachy_mini[gstreamer]'")
-            robot = ReachyMini(localhost_only=args.localhost, media_backend="default")
-            logger.info("Connected to robot with default backend (computer speaker)")
+            robot = ReachyMini(media_backend="default", **conn_kwargs)
+            logger.info("Connected to robot (media enabled)")
+        except Exception as media_err:
+            logger.warning(f"Media backend unavailable ({media_err}); connecting without media")
+            logger.warning("Sound and picture actions will be skipped")
+            robot = ReachyMini(media_backend="no_media", **conn_kwargs)
+            logger.info("Connected to robot (no media)")
     except Exception as e:
         logger.error(f"Failed to connect to robot: {e}")
         logger.error("Make sure the reachy_mini daemon is running")

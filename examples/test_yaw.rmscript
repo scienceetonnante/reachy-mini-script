@@ -1,0 +1,7 @@
+"test yaw interpolation"
+
+body left 110
+wait 1s
+body right 110
+wait 1s
+body center
